@@ -69,13 +69,13 @@ const cropImageToDataUrl = (image, cropPixels, outputSize = 300, quality = 0.85)
 const CATEGORIES = ['All', 'Food', 'Travel', 'Entertainment', 'Bills', 'Shopping', 'Health', 'Other']
 
 const CATEGORY_COLORS = {
-  Food: 'bg-emerald-100 text-emerald-700',
-  Travel: 'bg-blue-100 text-blue-700',
-  Entertainment: 'bg-violet-100 text-violet-700',
-  Bills: 'bg-red-100 text-red-700',
-  Shopping: 'bg-amber-100 text-amber-700',
-  Health: 'bg-pink-100 text-pink-700',
-  Other: 'bg-gray-100 text-gray-600',
+  Food: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  Travel: 'bg-sky-50 text-sky-700 border-sky-200',
+  Entertainment: 'bg-violet-50 text-violet-700 border-violet-200',
+  Bills: 'bg-rose-50 text-rose-700 border-rose-200',
+  Shopping: 'bg-amber-50 text-amber-700 border-amber-200',
+  Health: 'bg-pink-50 text-pink-700 border-pink-200',
+  Other: 'bg-stone-100 text-stone-600 border-stone-200',
 }
 
 const EMPTY_EXPENSE_FORM = { title: '', amount: '', category: 'Food', date: '' }
@@ -164,7 +164,7 @@ const Icon = {
     </svg>
   ),
   Empty: () => (
-    <svg className="w-14 h-14 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg className="w-14 h-14 text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
         d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
     </svg>
@@ -205,22 +205,22 @@ const Icon = {
 function InputField({ label, type = 'text', value, onChange, placeholder, icon: IconComp, rightSlot, error }) {
   return (
     <div>
-      {label && <label className="block text-sm font-semibold text-gray-700 mb-1.5">{label}</label>}
+      {label && <label className="block text-[11px] font-bold text-stone-500 uppercase tracking-widest mb-1.5">{label}</label>}
       <div className="relative">
         {IconComp && (
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 pointer-events-none">
             <IconComp />
           </span>
         )}
         <input
           type={type} value={value} onChange={onChange} placeholder={placeholder}
-          className={`w-full ${IconComp ? 'pl-10' : 'pl-4'} ${rightSlot ? 'pr-10' : 'pr-4'} py-3 border rounded-xl text-sm transition focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${error ? 'border-red-400 bg-red-50' : 'border-gray-200 bg-white'}`}
+          className={`w-full ${IconComp ? 'pl-10' : 'pl-4'} ${rightSlot ? 'pr-10' : 'pr-4'} py-3 border rounded-lg text-sm transition focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 ${error ? 'border-rose-400 bg-rose-50' : 'border-stone-300 bg-white'}`}
         />
         {rightSlot && (
-          <span className="absolute right-3 top-1/2 -translate-y-1/2">{rightSlot}</span>
+          <span className="absolute right-3.5 top-1/2 -translate-y-1/2">{rightSlot}</span>
         )}
       </div>
-      {error && <p className="mt-1.5 text-xs text-red-500 font-medium">{error}</p>}
+      {error && <p className="mt-1.5 text-xs text-rose-500 font-medium">{error}</p>}
     </div>
   )
 }
@@ -229,13 +229,13 @@ function PasswordStrengthBar({ password }) {
   const score = pwStrength(password)
   if (!password) return null
   const labels = ['', 'Weak', 'Fair', 'Good', 'Strong', 'Very strong']
-  const colors = ['', 'bg-red-400', 'bg-orange-400', 'bg-yellow-400', 'bg-emerald-400', 'bg-emerald-500']
-  const textColors = ['', 'text-red-500', 'text-orange-500', 'text-yellow-600', 'text-emerald-600', 'text-emerald-600']
+  const colors = ['', 'bg-rose-400', 'bg-orange-400', 'bg-amber-400', 'bg-emerald-400', 'bg-emerald-500']
+  const textColors = ['', 'text-rose-500', 'text-orange-500', 'text-amber-600', 'text-emerald-600', 'text-emerald-600']
   return (
     <div className="mt-2">
       <div className="flex gap-1 mb-1">
         {[1, 2, 3, 4, 5].map(i => (
-          <div key={i} className={`h-1 flex-1 rounded-full transition-all duration-300 ${i <= score ? colors[score] : 'bg-gray-200'}`} />
+          <div key={i} className={`h-1 flex-1 rounded-full transition-all duration-300 ${i <= score ? colors[score] : 'bg-stone-200'}`} />
         ))}
       </div>
       <p className={`text-xs font-semibold ${textColors[score]}`}>{labels[score]}</p>
@@ -246,12 +246,12 @@ function PasswordStrengthBar({ password }) {
 function Alert({ type, children }) {
   const styles = {
     success: 'bg-emerald-50 border-emerald-200 text-emerald-700',
-    error:   'bg-red-50 border-red-200 text-red-600',
-    info:    'bg-blue-50 border-blue-200 text-blue-700',
+    error:   'bg-rose-50 border-rose-200 text-rose-600',
+    info:    'bg-sky-50 border-sky-200 text-sky-700',
   }
   const icons = { success: <Icon.CheckCircle />, error: null, info: null }
   return (
-    <div className={`flex items-center gap-2 px-4 py-3 rounded-xl border text-sm font-medium ${styles[type]}`}>
+    <div className={`flex items-center gap-2 px-4 py-3 rounded-lg border text-sm font-medium ${styles[type]}`}>
       {icons[type]}
       <span>{children}</span>
     </div>
@@ -260,16 +260,48 @@ function Alert({ type, children }) {
 
 function AuthCard({ children }) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-6">
-          <div className="w-14 h-14 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center mx-auto mb-3 text-white shadow-lg">
+    <div className="min-h-screen bg-stone-50 flex">
+      {/* Brand panel */}
+      <div className="hidden lg:flex lg:w-[44%] relative bg-stone-900 text-stone-50 flex-col justify-between p-12 overflow-hidden">
+        <div
+          className="absolute inset-0 opacity-[0.06] pointer-events-none"
+          style={{
+            backgroundImage: 'linear-gradient(to right, white 1px, transparent 1px), linear-gradient(to bottom, white 1px, transparent 1px)',
+            backgroundSize: '44px 44px',
+          }}
+        />
+        <div className="relative flex items-center gap-3">
+          <div className="w-10 h-10 border border-amber-400/50 rounded-full flex items-center justify-center text-amber-400">
             <Icon.Money />
           </div>
-          <h1 className="text-3xl font-bold text-white tracking-tight">ExpenseTracker</h1>
-          <p className="text-white/70 text-sm mt-1">Your personal finance manager</p>
+          <span className="font-serif text-lg tracking-wide">ExpenseTracker</span>
         </div>
-        <div className="bg-white rounded-3xl shadow-2xl p-8">{children}</div>
+        <div className="relative">
+          <p className="font-serif text-4xl xl:text-5xl leading-tight text-stone-50">
+            Every rupee,<br />rightly accounted.
+          </p>
+          <p className="text-stone-400 text-sm mt-5 max-w-sm leading-relaxed">
+            A calmer way to see where your money goes — track spending, spot
+            patterns, and stay in control of every expense.
+          </p>
+        </div>
+        <p className="relative text-xs text-stone-500 tracking-wide">
+          &copy; {new Date().getFullYear()} ExpenseTracker
+        </p>
+      </div>
+
+      {/* Form panel */}
+      <div className="flex-1 flex items-center justify-center p-6 sm:p-10">
+        <div className="w-full max-w-md">
+          <div className="lg:hidden text-center mb-8">
+            <div className="w-12 h-12 bg-stone-900 rounded-full flex items-center justify-center mx-auto mb-3 text-amber-400">
+              <Icon.Money />
+            </div>
+            <h1 className="font-serif text-2xl text-stone-900 tracking-tight">ExpenseTracker</h1>
+            <p className="text-stone-400 text-xs mt-1">Your personal finance manager</p>
+          </div>
+          {children}
+        </div>
       </div>
     </div>
   )
@@ -281,7 +313,7 @@ function AvatarDisplay({ avatar, username, size = 'md', className = '' }) {
   return avatar
     ? <img src={avatar} alt={username} className={`${cls} object-cover`} />
     : (
-      <div className={`${cls} bg-gradient-to-br from-indigo-400 to-purple-500 text-white`}>
+      <div className={`${cls} bg-gradient-to-br from-amber-400 to-amber-600 text-stone-900`}>
         {username?.charAt(0)?.toUpperCase() ?? '?'}
       </div>
     )
@@ -314,35 +346,35 @@ function SignInScreen({ onSuccess }) {
 
   return (
     <AuthCard>
-      <div className="mb-7">
-        <h2 className="text-2xl font-bold text-gray-900">Welcome back</h2>
-        <p className="text-gray-500 text-sm mt-1">Sign in to your account to continue</p>
+      <div className="mb-8">
+        <p className="text-xs font-bold tracking-[0.2em] text-amber-600 uppercase mb-2">Welcome back</p>
+        <h2 className="font-serif text-3xl text-stone-900">Sign in to continue</h2>
       </div>
-      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+      <form onSubmit={handleSubmit} className="space-y-5" noValidate>
         <InputField label="Email address" type="email" value={form.email} onChange={set('email')}
           placeholder="you@example.com" icon={Icon.Mail} error={errors.email} />
         <InputField label="Password" type={showPw ? 'text' : 'password'} value={form.password}
           onChange={set('password')} placeholder="Enter your password" icon={Icon.Lock} error={errors.password}
           rightSlot={
-            <button type="button" onClick={() => setShowPw(p => !p)} className="text-gray-400 hover:text-gray-600" tabIndex={-1}>
+            <button type="button" onClick={() => setShowPw(p => !p)} className="text-stone-400 hover:text-stone-600" tabIndex={-1}>
               {showPw ? <Icon.EyeOff /> : <Icon.Eye />}
             </button>
           }
         />
-        <div className="flex justify-end">
+        <div className="flex justify-end -mt-1">
           <Link to="/forgot-password"
-            className="text-sm text-indigo-600 font-semibold hover:text-indigo-800 hover:underline transition">
+            className="text-xs font-semibold text-stone-500 hover:text-amber-600 transition">
             Forgot password?
           </Link>
         </div>
         <button type="submit"
-          className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 rounded-xl font-semibold hover:from-indigo-700 hover:to-purple-700 transition shadow-md hover:shadow-lg text-sm">
+          className="w-full bg-stone-900 text-white py-3.5 rounded-full font-semibold hover:bg-amber-600 transition shadow-sm text-sm tracking-wide">
           Sign In
         </button>
       </form>
-      <p className="text-center text-sm text-gray-500 mt-6">
+      <p className="text-center text-sm text-stone-400 mt-8">
         Don&apos;t have an account?{' '}
-        <Link to="/signup" className="text-indigo-600 font-semibold hover:underline">Create one</Link>
+        <Link to="/signup" className="text-stone-900 font-semibold hover:text-amber-600 transition">Create one</Link>
       </p>
     </AuthCard>
   )
@@ -400,11 +432,12 @@ function SignUpScreen({ onSuccess }) {
 
   return (
     <AuthCard>
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Create account</h2>
-        <p className="text-gray-500 text-sm mt-1">Start tracking your expenses for free</p>
+      <div className="mb-7">
+        <p className="text-xs font-bold tracking-[0.2em] text-amber-600 uppercase mb-2">Get started</p>
+        <h2 className="font-serif text-3xl text-stone-900">Create your account</h2>
+        <p className="text-stone-400 text-sm mt-1.5">Start tracking your expenses for free</p>
       </div>
-      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+      <form onSubmit={handleSubmit} className="space-y-5" noValidate>
         <InputField label="Username" value={form.username} onChange={set('username')}
           placeholder="e.g. johndoe" icon={Icon.User} error={errors.username} />
         <InputField label="Email address" type="email" value={form.email} onChange={set('email')}
@@ -413,7 +446,7 @@ function SignUpScreen({ onSuccess }) {
           <InputField label="Password" type={showPw ? 'text' : 'password'} value={form.password}
             onChange={set('password')} placeholder="Min. 6 characters" icon={Icon.Lock} error={errors.password}
             rightSlot={
-              <button type="button" onClick={() => setShowPw(p => !p)} className="text-gray-400 hover:text-gray-600" tabIndex={-1}>
+              <button type="button" onClick={() => setShowPw(p => !p)} className="text-stone-400 hover:text-stone-600" tabIndex={-1}>
                 {showPw ? <Icon.EyeOff /> : <Icon.Eye />}
               </button>
             }
@@ -423,19 +456,19 @@ function SignUpScreen({ onSuccess }) {
         <InputField label="Confirm password" type={showConfirm ? 'text' : 'password'} value={form.confirm}
           onChange={set('confirm')} placeholder="Re-enter your password" icon={Icon.Lock} error={errors.confirm}
           rightSlot={
-            <button type="button" onClick={() => setShowConfirm(p => !p)} className="text-gray-400 hover:text-gray-600" tabIndex={-1}>
+            <button type="button" onClick={() => setShowConfirm(p => !p)} className="text-stone-400 hover:text-stone-600" tabIndex={-1}>
               {showConfirm ? <Icon.EyeOff /> : <Icon.Eye />}
             </button>
           }
         />
         <button type="submit"
-          className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 rounded-xl font-semibold hover:from-indigo-700 hover:to-purple-700 transition shadow-md hover:shadow-lg text-sm mt-1">
+          className="w-full bg-stone-900 text-white py-3.5 rounded-full font-semibold hover:bg-amber-600 transition shadow-sm text-sm tracking-wide mt-1">
           Create Account
         </button>
       </form>
-      <p className="text-center text-sm text-gray-500 mt-6">
+      <p className="text-center text-sm text-stone-400 mt-8">
         Already have an account?{' '}
-        <Link to="/login" className="text-indigo-600 font-semibold hover:underline">Sign in</Link>
+        <Link to="/login" className="text-stone-900 font-semibold hover:text-amber-600 transition">Sign in</Link>
       </p>
     </AuthCard>
   )
@@ -481,13 +514,13 @@ function ForgotPasswordScreen() {
     return (
       <AuthCard>
         <div className="text-center py-6">
-          <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4 text-emerald-600">
+          <div className="w-16 h-16 border border-emerald-200 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-5 text-emerald-600">
             <Icon.CheckCircle />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Password reset!</h2>
-          <p className="text-gray-500 text-sm mb-6">Your password has been updated successfully. You can now sign in with your new password.</p>
+          <h2 className="font-serif text-2xl text-stone-900 mb-2">Password reset!</h2>
+          <p className="text-stone-400 text-sm mb-7">Your password has been updated successfully. You can now sign in with your new password.</p>
           <Link to="/login"
-            className="block w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 rounded-xl font-semibold hover:from-indigo-700 hover:to-purple-700 transition shadow-md text-sm text-center">
+            className="block w-full bg-stone-900 text-white py-3.5 rounded-full font-semibold hover:bg-amber-600 transition shadow-sm text-sm text-center tracking-wide">
             Back to Sign In
           </Link>
         </div>
@@ -497,48 +530,48 @@ function ForgotPasswordScreen() {
 
   return (
     <AuthCard>
-      <Link to="/login" className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 font-medium mb-6 transition">
+      <Link to="/login" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-amber-600 mb-7 transition">
         <Icon.ArrowLeft /> Back to Sign In
       </Link>
 
       {step === 1 ? (
         <>
-          <div className="mb-6">
-            <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center mb-4 text-indigo-600">
+          <div className="mb-7">
+            <div className="w-12 h-12 border border-amber-200 bg-amber-50 rounded-full flex items-center justify-center mb-4 text-amber-600">
               <Icon.Key />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900">Forgot password?</h2>
-            <p className="text-gray-500 text-sm mt-1">Enter your registered email to reset your password.</p>
+            <h2 className="font-serif text-3xl text-stone-900">Forgot password?</h2>
+            <p className="text-stone-400 text-sm mt-1.5">Enter your registered email to reset your password.</p>
           </div>
-          <form onSubmit={handleFindAccount} className="space-y-4" noValidate>
+          <form onSubmit={handleFindAccount} className="space-y-5" noValidate>
             <InputField label="Registered email" type="email" value={email}
               onChange={e => { setEmail(e.target.value); setEmailError('') }}
               placeholder="you@example.com" icon={Icon.Mail} error={emailError} />
             <button type="submit"
-              className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 rounded-xl font-semibold hover:from-indigo-700 hover:to-purple-700 transition shadow-md text-sm">
+              className="w-full bg-stone-900 text-white py-3.5 rounded-full font-semibold hover:bg-amber-600 transition shadow-sm text-sm tracking-wide">
               Find Account
             </button>
           </form>
         </>
       ) : (
         <>
-          <div className="mb-6">
-            <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center mb-4 text-indigo-600">
+          <div className="mb-7">
+            <div className="w-12 h-12 border border-amber-200 bg-amber-50 rounded-full flex items-center justify-center mb-4 text-amber-600">
               <Icon.Shield />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900">Reset password</h2>
-            <p className="text-gray-500 text-sm mt-1">
-              Account found for <span className="font-semibold text-indigo-600">{email}</span>.
+            <h2 className="font-serif text-3xl text-stone-900">Reset password</h2>
+            <p className="text-stone-400 text-sm mt-1.5">
+              Account found for <span className="font-semibold text-amber-600">{email}</span>.
               Set your new password below.
             </p>
           </div>
-          <form onSubmit={handleReset} className="space-y-4" noValidate>
+          <form onSubmit={handleReset} className="space-y-5" noValidate>
             <div>
               <InputField label="New password" type={showNew ? 'text' : 'password'} value={form.newPw}
                 onChange={e => { setForm(p => ({ ...p, newPw: e.target.value })); setErrors(p => ({ ...p, newPw: '' })) }}
                 placeholder="Min. 6 characters" icon={Icon.Lock} error={errors.newPw}
                 rightSlot={
-                  <button type="button" onClick={() => setShowNew(p => !p)} className="text-gray-400 hover:text-gray-600" tabIndex={-1}>
+                  <button type="button" onClick={() => setShowNew(p => !p)} className="text-stone-400 hover:text-stone-600" tabIndex={-1}>
                     {showNew ? <Icon.EyeOff /> : <Icon.Eye />}
                   </button>
                 }
@@ -549,13 +582,13 @@ function ForgotPasswordScreen() {
               onChange={e => { setForm(p => ({ ...p, confirm: e.target.value })); setErrors(p => ({ ...p, confirm: '' })) }}
               placeholder="Re-enter new password" icon={Icon.Lock} error={errors.confirm}
               rightSlot={
-                <button type="button" onClick={() => setShowConfirm(p => !p)} className="text-gray-400 hover:text-gray-600" tabIndex={-1}>
+                <button type="button" onClick={() => setShowConfirm(p => !p)} className="text-stone-400 hover:text-stone-600" tabIndex={-1}>
                   {showConfirm ? <Icon.EyeOff /> : <Icon.Eye />}
                 </button>
               }
             />
             <button type="submit"
-              className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 rounded-xl font-semibold hover:from-indigo-700 hover:to-purple-700 transition shadow-md text-sm">
+              className="w-full bg-stone-900 text-white py-3.5 rounded-full font-semibold hover:bg-amber-600 transition shadow-sm text-sm tracking-wide">
               Reset Password
             </button>
           </form>
@@ -677,128 +710,125 @@ function ProfilePage({ currentUser, onUserUpdate }) {
     : null
 
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
       {/* Back button */}
       <button onClick={() => navigate('/')}
-        className="flex items-center gap-2 text-sm text-gray-500 hover:text-indigo-600 font-semibold mb-6 transition">
+        className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-amber-600 mb-8 transition">
         <Icon.ArrowLeft /> Back to Expenses
       </button>
 
-      {/* ── Profile hero ── */}
-      <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mb-6">
-        {/* Banner */}
-        <div className="h-28 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
-        {/* Avatar + info */}
-        <div className="px-6 pb-6">
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 -mt-12 mb-4">
-            <div className="relative w-fit">
+      <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8">
+        {/* ── Sidebar ── */}
+        <aside className="lg:sticky lg:top-8 h-fit">
+          <div className="bg-white border border-stone-200 rounded-2xl p-6 text-center">
+            <div className="relative w-fit mx-auto mb-4">
               <AvatarDisplay avatar={avatar} username={currentUser.username} size="xl"
-                className="ring-4 ring-white shadow-lg" />
+                className="ring-4 ring-stone-100" />
               <button
                 onClick={() => fileRef.current.click()}
                 title="Change photo"
-                className="absolute bottom-1 right-1 w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-md hover:bg-indigo-700 transition"
+                className="absolute bottom-0 right-0 w-8 h-8 bg-stone-900 text-amber-400 rounded-full flex items-center justify-center shadow-sm hover:bg-amber-600 hover:text-white transition"
               >
                 <Icon.Camera />
               </button>
               <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
             </div>
-            <div className="flex gap-2 mb-1">
+            <h2 className="font-serif text-xl text-stone-900">{currentUser.username}</h2>
+            <p className="text-stone-400 text-sm">{currentUser.email}</p>
+            {memberSince && <p className="text-[11px] font-bold uppercase tracking-widest text-stone-300 mt-3">Member since {memberSince}</p>}
+
+            <div className="flex flex-col gap-2 mt-5">
               <button onClick={() => fileRef.current.click()}
-                className="px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-xl hover:bg-indigo-700 transition shadow-sm">
+                className="w-full px-4 py-2.5 bg-stone-900 text-white text-sm font-semibold rounded-full hover:bg-amber-600 transition shadow-sm">
                 {avatar ? 'Change Photo' : 'Upload Photo'}
               </button>
               {avatar && (
                 <button onClick={handleRemoveAvatar}
-                  className="px-4 py-2 border border-gray-200 text-gray-600 text-sm font-semibold rounded-xl hover:bg-gray-50 transition">
-                  Remove
+                  className="w-full px-4 py-2.5 border border-stone-300 text-stone-500 text-sm font-semibold rounded-full hover:bg-stone-50 transition">
+                  Remove Photo
                 </button>
               )}
             </div>
           </div>
-          <h2 className="text-xl font-bold text-gray-900">{currentUser.username}</h2>
-          <p className="text-gray-500 text-sm">{currentUser.email}</p>
-          {memberSince && <p className="text-gray-400 text-xs mt-1">Member since {memberSince}</p>}
-        </div>
-      </div>
+        </aside>
 
-      {/* ── Edit Profile ── */}
-      <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 mb-6">
-        <div className="flex items-center gap-3 mb-5">
-          <div className="w-9 h-9 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600">
-            <Icon.User />
-          </div>
-          <div>
-            <h3 className="font-bold text-gray-900">Edit Profile</h3>
-            <p className="text-xs text-gray-400">Update your username and email</p>
-          </div>
-        </div>
+        {/* ── Main column ── */}
+        <div className="space-y-8">
+          {/* Edit Profile */}
+          <section className="bg-white border border-stone-200 rounded-2xl p-6 sm:p-8">
+            <div className="flex items-baseline gap-3 mb-6 pb-5 border-b border-stone-100">
+              <span className="font-serif text-amber-600 text-sm">01</span>
+              <div>
+                <h3 className="font-serif text-lg text-stone-900">Edit Profile</h3>
+                <p className="text-xs text-stone-400 mt-0.5">Update your username and email</p>
+              </div>
+            </div>
 
-        {profileSuccess && <div className="mb-4"><Alert type="success">{profileSuccess}</Alert></div>}
+            {profileSuccess && <div className="mb-5"><Alert type="success">{profileSuccess}</Alert></div>}
 
-        <form onSubmit={handleProfileSave} className="space-y-4" noValidate>
-          <InputField label="Username" value={profile.username} onChange={setPField('username')}
-            placeholder="Your username" icon={Icon.User} error={profileErrors.username} />
-          <InputField label="Email address" type="email" value={profile.email} onChange={setPField('email')}
-            placeholder="your@email.com" icon={Icon.Mail} error={profileErrors.email} />
-          <div className="flex justify-end">
-            <button type="submit"
-              className="px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold hover:from-indigo-700 hover:to-purple-700 transition shadow-md text-sm">
-              Save Changes
-            </button>
-          </div>
-        </form>
-      </div>
-
-      {/* ── Change Password ── */}
-      <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
-        <div className="flex items-center gap-3 mb-5">
-          <div className="w-9 h-9 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600">
-            <Icon.Shield />
-          </div>
-          <div>
-            <h3 className="font-bold text-gray-900">Change Password</h3>
-            <p className="text-xs text-gray-400">Keep your account secure</p>
-          </div>
-        </div>
-
-        {pwSuccess && <div className="mb-4"><Alert type="success">{pwSuccess}</Alert></div>}
-
-        <form onSubmit={handlePasswordSave} className="space-y-4" noValidate>
-          <InputField label="Current password" type={showCurrent ? 'text' : 'password'} value={pw.current}
-            onChange={setPwField('current')} placeholder="Enter current password" icon={Icon.Lock} error={pwErrors.current}
-            rightSlot={
-              <button type="button" onClick={() => setShowCurrent(p => !p)} className="text-gray-400 hover:text-gray-600" tabIndex={-1}>
-                {showCurrent ? <Icon.EyeOff /> : <Icon.Eye />}
-              </button>
-            }
-          />
-          <div>
-            <InputField label="New password" type={showNew ? 'text' : 'password'} value={pw.newPw}
-              onChange={setPwField('newPw')} placeholder="Min. 6 characters" icon={Icon.Lock} error={pwErrors.newPw}
-              rightSlot={
-                <button type="button" onClick={() => setShowNew(p => !p)} className="text-gray-400 hover:text-gray-600" tabIndex={-1}>
-                  {showNew ? <Icon.EyeOff /> : <Icon.Eye />}
+            <form onSubmit={handleProfileSave} className="space-y-5" noValidate>
+              <InputField label="Username" value={profile.username} onChange={setPField('username')}
+                placeholder="Your username" icon={Icon.User} error={profileErrors.username} />
+              <InputField label="Email address" type="email" value={profile.email} onChange={setPField('email')}
+                placeholder="your@email.com" icon={Icon.Mail} error={profileErrors.email} />
+              <div className="flex justify-end">
+                <button type="submit"
+                  className="px-6 py-2.5 bg-stone-900 text-white rounded-full font-semibold hover:bg-amber-600 transition shadow-sm text-sm tracking-wide">
+                  Save Changes
                 </button>
-              }
-            />
-            <PasswordStrengthBar password={pw.newPw} />
-          </div>
-          <InputField label="Confirm new password" type={showConfirm ? 'text' : 'password'} value={pw.confirm}
-            onChange={setPwField('confirm')} placeholder="Re-enter new password" icon={Icon.Lock} error={pwErrors.confirm}
-            rightSlot={
-              <button type="button" onClick={() => setShowConfirm(p => !p)} className="text-gray-400 hover:text-gray-600" tabIndex={-1}>
-                {showConfirm ? <Icon.EyeOff /> : <Icon.Eye />}
-              </button>
-            }
-          />
-          <div className="flex justify-end">
-            <button type="submit"
-              className="px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold hover:from-indigo-700 hover:to-purple-700 transition shadow-md text-sm">
-              Update Password
-            </button>
-          </div>
-        </form>
+              </div>
+            </form>
+          </section>
+
+          {/* Change Password */}
+          <section className="bg-white border border-stone-200 rounded-2xl p-6 sm:p-8">
+            <div className="flex items-baseline gap-3 mb-6 pb-5 border-b border-stone-100">
+              <span className="font-serif text-amber-600 text-sm">02</span>
+              <div>
+                <h3 className="font-serif text-lg text-stone-900">Change Password</h3>
+                <p className="text-xs text-stone-400 mt-0.5">Keep your account secure</p>
+              </div>
+            </div>
+
+            {pwSuccess && <div className="mb-5"><Alert type="success">{pwSuccess}</Alert></div>}
+
+            <form onSubmit={handlePasswordSave} className="space-y-5" noValidate>
+              <InputField label="Current password" type={showCurrent ? 'text' : 'password'} value={pw.current}
+                onChange={setPwField('current')} placeholder="Enter current password" icon={Icon.Lock} error={pwErrors.current}
+                rightSlot={
+                  <button type="button" onClick={() => setShowCurrent(p => !p)} className="text-stone-400 hover:text-stone-600" tabIndex={-1}>
+                    {showCurrent ? <Icon.EyeOff /> : <Icon.Eye />}
+                  </button>
+                }
+              />
+              <div>
+                <InputField label="New password" type={showNew ? 'text' : 'password'} value={pw.newPw}
+                  onChange={setPwField('newPw')} placeholder="Min. 6 characters" icon={Icon.Lock} error={pwErrors.newPw}
+                  rightSlot={
+                    <button type="button" onClick={() => setShowNew(p => !p)} className="text-stone-400 hover:text-stone-600" tabIndex={-1}>
+                      {showNew ? <Icon.EyeOff /> : <Icon.Eye />}
+                    </button>
+                  }
+                />
+                <PasswordStrengthBar password={pw.newPw} />
+              </div>
+              <InputField label="Confirm new password" type={showConfirm ? 'text' : 'password'} value={pw.confirm}
+                onChange={setPwField('confirm')} placeholder="Re-enter new password" icon={Icon.Lock} error={pwErrors.confirm}
+                rightSlot={
+                  <button type="button" onClick={() => setShowConfirm(p => !p)} className="text-stone-400 hover:text-stone-600" tabIndex={-1}>
+                    {showConfirm ? <Icon.EyeOff /> : <Icon.Eye />}
+                  </button>
+                }
+              />
+              <div className="flex justify-end">
+                <button type="submit"
+                  className="px-6 py-2.5 bg-stone-900 text-white rounded-full font-semibold hover:bg-amber-600 transition shadow-sm text-sm tracking-wide">
+                  Update Password
+                </button>
+              </div>
+            </form>
+          </section>
+        </div>
       </div>
 
       {cropperImage && (
@@ -840,16 +870,16 @@ function AvatarCropperModal({ imageSrc, onCancel, onSave }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6">
-        <div className="flex items-center justify-between mb-5">
-          <h3 className="text-xl font-bold text-gray-900">Adjust Photo</h3>
-          <button onClick={onCancel} className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-1.5 rounded-lg transition">
+    <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl border border-stone-200 shadow-xl w-full max-w-md p-6">
+        <div className="flex items-center justify-between mb-5 pb-4 border-b border-stone-100">
+          <h3 className="font-serif text-xl text-stone-900">Adjust Photo</h3>
+          <button onClick={onCancel} className="text-stone-400 hover:text-stone-600 hover:bg-stone-100 p-1.5 rounded-full transition">
             <Icon.Close />
           </button>
         </div>
 
-        <div className="relative w-full h-72 bg-gray-900 rounded-2xl overflow-hidden">
+        <div className="relative w-full h-72 bg-stone-900 rounded-xl overflow-hidden">
           <Cropper
             image={imageSrc}
             crop={crop}
@@ -864,29 +894,29 @@ function AvatarCropperModal({ imageSrc, onCancel, onSave }) {
         </div>
 
         <div className="flex items-center gap-3 mt-4">
-          <span className="text-xs font-semibold text-gray-500 shrink-0">Zoom</span>
+          <span className="text-[11px] font-bold uppercase tracking-widest text-stone-400 shrink-0">Zoom</span>
           <input type="range" min={1} max={3} step={0.01} value={zoom}
             onChange={e => setZoom(Number(e.target.value))}
-            className="flex-1 accent-indigo-600"
+            className="flex-1 accent-amber-600"
           />
         </div>
 
         <div className="flex items-center gap-3 mt-4">
-          <div className="w-16 h-16 rounded-full overflow-hidden ring-2 ring-gray-200 shrink-0 bg-gray-100 flex items-center justify-center">
+          <div className="w-16 h-16 rounded-full overflow-hidden ring-2 ring-stone-200 shrink-0 bg-stone-100 flex items-center justify-center">
             {previewUrl
               ? <img src={previewUrl} alt="Profile preview" className="w-full h-full object-cover" />
-              : <span className="w-5 h-5 border-2 border-gray-300 border-t-transparent rounded-full animate-spin" />}
+              : <span className="w-5 h-5 border-2 border-stone-300 border-t-transparent rounded-full animate-spin" />}
           </div>
-          <p className="text-xs text-gray-400">Live preview of your new profile picture</p>
+          <p className="text-xs text-stone-400">Live preview of your new profile picture</p>
         </div>
 
-        <div className="flex gap-3 pt-5">
+        <div className="flex gap-3 pt-6">
           <button type="button" onClick={onCancel}
-            className="flex-1 py-2.5 border border-gray-200 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 transition">
+            className="flex-1 py-2.5 border border-stone-300 rounded-full text-sm font-semibold text-stone-600 hover:bg-stone-50 transition">
             Cancel
           </button>
           <button type="button" onClick={handleSave} disabled={saving || !croppedAreaPixels}
-            className="flex-1 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-semibold hover:from-indigo-700 hover:to-purple-700 transition shadow-md disabled:opacity-60">
+            className="flex-1 py-2.5 bg-stone-900 text-white rounded-full text-sm font-semibold hover:bg-amber-600 transition shadow-sm disabled:opacity-60">
             {saving ? 'Saving…' : 'Save'}
           </button>
         </div>
@@ -914,11 +944,11 @@ function ExpenseModal({ editingExpense, onClose, onSave }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-bold text-gray-900">{editingExpense ? 'Edit Expense' : 'Add New Expense'}</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-1.5 rounded-lg transition">
+    <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl border border-stone-200 shadow-xl w-full max-w-md p-6">
+        <div className="flex items-center justify-between mb-6 pb-4 border-b border-stone-100">
+          <h3 className="font-serif text-xl text-stone-900">{editingExpense ? 'Edit Expense' : 'Add New Expense'}</h3>
+          <button onClick={onClose} className="text-stone-400 hover:text-stone-600 hover:bg-stone-100 p-1.5 rounded-full transition">
             <Icon.Close />
           </button>
         </div>
@@ -928,34 +958,34 @@ function ExpenseModal({ editingExpense, onClose, onSave }) {
             { label: 'Amount ($)', key: 'amount', type: 'number', placeholder: '0.00', extra: { step: '0.01', min: '0' } },
           ].map(({ label, key, type, placeholder, extra }) => (
             <div key={key}>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">{label}</label>
+              <label className="block text-[11px] font-bold text-stone-500 uppercase tracking-widest mb-1.5">{label}</label>
               <input type={type} value={form[key]} placeholder={placeholder} {...(extra || {})}
                 onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))}
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 text-sm"
               />
             </div>
           ))}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Category</label>
+            <label className="block text-[11px] font-bold text-stone-500 uppercase tracking-widest mb-1.5">Category</label>
             <select value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value }))}
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm bg-white">
+              className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 text-sm bg-white">
               {CATEGORIES.filter(c => c !== 'All').map(c => <option key={c}>{c}</option>)}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Date</label>
+            <label className="block text-[11px] font-bold text-stone-500 uppercase tracking-widest mb-1.5">Date</label>
             <input type="date" value={form.date} onChange={e => setForm(p => ({ ...p, date: e.target.value }))}
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+              className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 text-sm"
             />
           </div>
           {error && <Alert type="error">{error}</Alert>}
           <div className="flex gap-3 pt-1">
             <button type="button" onClick={onClose}
-              className="flex-1 py-2.5 border border-gray-200 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 transition">
+              className="flex-1 py-2.5 border border-stone-300 rounded-full text-sm font-semibold text-stone-600 hover:bg-stone-50 transition">
               Cancel
             </button>
             <button type="submit"
-              className="flex-1 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-semibold hover:from-indigo-700 hover:to-purple-700 transition shadow-md">
+              className="flex-1 py-2.5 bg-stone-900 text-white rounded-full text-sm font-semibold hover:bg-amber-600 transition shadow-sm">
               {editingExpense ? 'Update' : 'Add Expense'}
             </button>
           </div>
@@ -969,10 +999,10 @@ function ExpenseModal({ editingExpense, onClose, onSave }) {
 
 function SummaryCard({ label, value, accent, sub }) {
   return (
-    <div className={`bg-white rounded-2xl shadow-sm p-5 border-l-4 ${accent}`}>
-      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">{label}</p>
-      <p className="text-2xl font-bold text-gray-800">{value}</p>
-      {sub && <p className="text-xs text-gray-400 mt-0.5">{sub}</p>}
+    <div className={`bg-white rounded-2xl border border-stone-200 border-t-4 p-5 ${accent}`}>
+      <p className="text-[11px] font-bold text-stone-400 uppercase tracking-widest mb-2">{label}</p>
+      <p className="font-serif text-3xl text-stone-900">{value}</p>
+      {sub && <p className="text-xs text-stone-400 mt-1">{sub}</p>}
     </div>
   )
 }
@@ -1004,11 +1034,11 @@ function ToastProvider({ children }) {
       <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] flex flex-col items-center gap-2 w-full px-4 sm:w-auto pointer-events-none">
         {toasts.map(t => (
           <div key={t.id}
-            className="pointer-events-auto flex items-center gap-3 bg-white border border-emerald-200 shadow-lg rounded-2xl pl-4 pr-3 py-3 text-sm font-semibold text-gray-800 w-full sm:min-w-[320px] animate-[toast-slide-in_0.25s_ease-out]">
-            <span className="text-emerald-500 shrink-0"><Icon.CheckCircle /></span>
+            className="pointer-events-auto flex items-center gap-3 bg-stone-900 border border-stone-800 shadow-lg rounded-full pl-4 pr-3 py-3 text-sm font-semibold text-white w-full sm:min-w-[320px] animate-[toast-slide-in_0.25s_ease-out]">
+            <span className="text-emerald-400 shrink-0"><Icon.CheckCircle /></span>
             <span className="flex-1">{t.message}</span>
             <button onClick={() => dismissToast(t.id)} aria-label="Dismiss"
-              className="text-gray-300 hover:text-gray-500 shrink-0 p-1 -m-1 rounded-lg transition">
+              className="text-stone-400 hover:text-white shrink-0 p-1 -m-1 rounded-full transition">
               <Icon.Close />
             </button>
           </div>
@@ -1022,25 +1052,25 @@ function ToastProvider({ children }) {
 
 function Navbar({ currentUser, onLogout }) {
   const isProfile = useLocation().pathname === '/profile'
-  const profileLinkCls = `hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold transition ${isProfile ? 'bg-indigo-100 text-indigo-700' : 'text-gray-600 hover:bg-gray-100'}`
-  const mobileLinkCls = `sm:hidden w-9 h-9 rounded-xl flex items-center justify-center transition overflow-hidden ${isProfile ? 'ring-2 ring-indigo-500' : ''}`
+  const profileLinkCls = `hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold transition ${isProfile ? 'bg-amber-500 text-stone-900' : 'text-stone-300 hover:bg-stone-800'}`
+  const mobileLinkCls = `sm:hidden w-9 h-9 rounded-full flex items-center justify-center transition overflow-hidden ${isProfile ? 'ring-2 ring-amber-400' : ''}`
 
   return (
-    <nav className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+    <nav className="bg-stone-900 sticky top-0 z-10">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white shadow">
+          <div className="w-9 h-9 border border-amber-400/50 rounded-full flex items-center justify-center text-amber-400">
             <Icon.Money />
           </div>
-          <span className="text-lg font-bold text-gray-900 hidden sm:block">ExpenseTracker</span>
+          <span className="font-serif text-lg text-stone-50 tracking-wide hidden sm:block">ExpenseTracker</span>
         </Link>
         <div className="flex items-center gap-2">
           {/* Profile link */}
           <Link to={isProfile ? '/' : '/profile'} className={profileLinkCls}>
             <AvatarDisplay avatar={currentUser.profileImage} username={currentUser.username} size="sm" />
             <div className="leading-tight text-left">
-              <p className="text-sm font-semibold text-gray-800">{currentUser.username}</p>
-              <p className="text-xs text-gray-400 hidden md:block">{currentUser.email}</p>
+              <p className="text-sm font-semibold">{currentUser.username}</p>
+              <p className={`text-xs hidden md:block ${isProfile ? 'text-stone-800' : 'text-stone-400'}`}>{currentUser.email}</p>
             </div>
           </Link>
           {/* Mobile profile link */}
@@ -1048,7 +1078,7 @@ function Navbar({ currentUser, onLogout }) {
             <AvatarDisplay avatar={currentUser.profileImage} username={currentUser.username} size="md" />
           </Link>
           <button onClick={onLogout}
-            className="flex items-center gap-2 bg-red-50 text-red-600 border border-red-200 px-3 py-2 rounded-xl text-sm font-semibold hover:bg-red-100 transition">
+            className="flex items-center gap-2 border border-stone-700 text-stone-300 px-3 py-1.5 rounded-full text-sm font-semibold hover:bg-stone-800 hover:text-white transition">
             <Icon.Logout />
             <span className="hidden sm:inline">Logout</span>
           </button>
@@ -1066,7 +1096,7 @@ function ProtectedRoute({ currentUser }) {
 
 function AppLayout({ currentUser, onLogout }) {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-stone-50">
       <Navbar currentUser={currentUser} onLogout={onLogout} />
       <Outlet />
     </div>
@@ -1125,45 +1155,46 @@ function ExpensesPage({ expenses, onAdd, onUpdate, onDelete }) {
   })()
 
   return (
-    <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+    <main className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10 pb-6 border-b border-stone-200">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">My Expenses</h2>
-          <p className="text-gray-500 text-sm mt-0.5">Track and manage all your spending in one place</p>
+          <p className="text-xs font-bold tracking-[0.2em] text-amber-600 uppercase mb-2">Dashboard</p>
+          <h2 className="font-serif text-3xl text-stone-900">My Expenses</h2>
+          <p className="text-stone-500 text-sm mt-1">Track and manage all your spending in one place</p>
         </div>
         <button onClick={openAddModal}
-          className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:from-indigo-700 hover:to-purple-700 transition shadow-md hover:shadow-lg text-sm">
+          className="inline-flex items-center justify-center gap-2 bg-stone-900 text-white px-5 py-3 rounded-full font-semibold hover:bg-amber-600 transition shadow-sm text-sm tracking-wide">
           <Icon.Plus /> Add Expense
         </button>
       </div>
 
       {/* Summary cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        <SummaryCard label="Total Expenses" value={filtered.length} accent="border-indigo-500"
+        <SummaryCard label="Total Expenses" value={filtered.length} accent="border-amber-500"
           sub={hasFilters ? `of ${expenses.length} total` : undefined} />
         <SummaryCard label="Total Amount" value={`$${totalAmount.toFixed(2)}`} accent="border-emerald-500" />
-        <SummaryCard label="Top Category" value={topCategory ? topCategory.category : 'No Data'} accent="border-purple-500" />
+        <SummaryCard label="Top Category" value={topCategory ? topCategory.category : 'No Data'} accent="border-stone-900" />
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-6">
-        <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
-          <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest">Filter Expenses</h3>
+      <div className="bg-white rounded-2xl border border-stone-200 p-5 mb-6">
+        <div className="flex items-center justify-between flex-wrap gap-2 mb-4">
+          <h3 className="text-[11px] font-bold text-stone-400 uppercase tracking-widest">Filter Expenses</h3>
           {hasFilters && (
             <button onClick={clearFilters}
-              className="text-xs font-semibold text-gray-500 hover:text-indigo-600 transition">
+              className="text-xs font-semibold text-stone-500 hover:text-amber-600 transition">
               Clear Filters
             </button>
           )}
         </div>
 
         {/* Mode switcher */}
-        <div className="inline-flex flex-wrap gap-1 rounded-xl border border-gray-200 bg-gray-50 p-1 mb-4">
+        <div className="inline-flex flex-wrap gap-1 rounded-full border border-stone-200 bg-stone-100 p-1 mb-4">
           {FILTER_MODES.map(({ key, label }) => (
             <button key={key} onClick={() => setFilterMode(key)}
-              className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition ${
-                filterMode === key ? 'bg-white text-indigo-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+              className={`px-4 py-1.5 rounded-full text-sm font-semibold transition ${
+                filterMode === key ? 'bg-stone-900 text-white shadow-sm' : 'text-stone-500 hover:text-stone-700'
               }`}>
               {label}
             </button>
@@ -1171,8 +1202,8 @@ function ExpensesPage({ expenses, onAdd, onUpdate, onDelete }) {
         </div>
 
         {filterMode === 'month' && (
-          <p className="text-sm text-gray-600">
-            Showing expenses for <span className="font-semibold text-gray-800">{monthLabel}</span>
+          <p className="text-sm text-stone-600">
+            Showing expenses for <span className="font-semibold text-stone-900">{monthLabel}</span>
           </p>
         )}
 
@@ -1180,30 +1211,30 @@ function ExpensesPage({ expenses, onAdd, onUpdate, onDelete }) {
           <>
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="flex-1">
-                <label className="block text-xs font-semibold text-gray-500 mb-1">From Date</label>
+                <label className="block text-[11px] font-bold text-stone-500 uppercase tracking-widest mb-1.5">From Date</label>
                 <input type="date" value={fromDate} max={toDate || undefined} onChange={e => setFromDate(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400 text-sm"
+                  className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 text-sm"
                 />
               </div>
               <div className="flex-1">
-                <label className="block text-xs font-semibold text-gray-500 mb-1">To Date</label>
+                <label className="block text-[11px] font-bold text-stone-500 uppercase tracking-widest mb-1.5">To Date</label>
                 <input type="date" value={toDate} min={fromDate || undefined} onChange={e => setToDate(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400 text-sm"
+                  className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 text-sm"
                 />
               </div>
             </div>
             {(fromDate || toDate) && (
               <div className="flex flex-wrap gap-2 mt-3">
                 {fromDate && (
-                  <span className="inline-flex items-center gap-1 bg-indigo-50 text-indigo-700 text-xs font-semibold px-3 py-1 rounded-full border border-indigo-200">
+                  <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 text-xs font-semibold px-3 py-1 rounded-full border border-amber-200">
                     From: {fromDate}
-                    <button onClick={() => setFromDate('')} className="ml-1 hover:text-indigo-900">×</button>
+                    <button onClick={() => setFromDate('')} className="ml-1 hover:text-amber-900">×</button>
                   </span>
                 )}
                 {toDate && (
-                  <span className="inline-flex items-center gap-1 bg-purple-50 text-purple-700 text-xs font-semibold px-3 py-1 rounded-full border border-purple-200">
+                  <span className="inline-flex items-center gap-1 bg-stone-100 text-stone-700 text-xs font-semibold px-3 py-1 rounded-full border border-stone-300">
                     To: {toDate}
-                    <button onClick={() => setToDate('')} className="ml-1 hover:text-purple-900">×</button>
+                    <button onClick={() => setToDate('')} className="ml-1 hover:text-stone-900">×</button>
                   </span>
                 )}
               </div>
@@ -1213,16 +1244,16 @@ function ExpensesPage({ expenses, onAdd, onUpdate, onDelete }) {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden">
         {filtered.length === 0 ? (
           <div className="text-center py-20">
             <div className="flex justify-center mb-4"><Icon.Empty /></div>
-            <p className="text-gray-600 font-semibold text-lg">No expenses found</p>
-            <p className="text-gray-400 text-sm mt-1">
+            <p className="text-stone-600 font-semibold text-lg font-serif">No expenses found</p>
+            <p className="text-stone-400 text-sm mt-1">
               {hasFilters ? 'Try adjusting or clearing your date range.' : 'Click "Add Expense" to get started.'}
             </p>
             {hasFilters && (
-              <button onClick={clearFilters} className="mt-4 text-indigo-600 text-sm font-semibold hover:underline">
+              <button onClick={clearFilters} className="mt-4 text-amber-600 text-sm font-semibold hover:underline">
                 Clear Filters
               </button>
             )}
@@ -1232,38 +1263,38 @@ function ExpensesPage({ expenses, onAdd, onUpdate, onDelete }) {
             {/* Desktop */}
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50 border-b border-gray-100">
+                <thead className="bg-stone-50 border-b border-stone-200">
                   <tr>
                     {['#', 'Expense Name', 'Category', 'Date', 'Amount', 'Actions'].map(h => (
-                      <th key={h} className={`px-6 py-3.5 text-xs font-bold text-gray-400 uppercase tracking-wide ${h === 'Amount' || h === 'Actions' ? 'text-right' : 'text-left'}`}>{h}</th>
+                      <th key={h} className={`px-6 py-3.5 text-[11px] font-bold text-stone-400 uppercase tracking-widest ${h === 'Amount' || h === 'Actions' ? 'text-right' : 'text-left'}`}>{h}</th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-50">
+                <tbody className="divide-y divide-stone-100">
                   {filtered.map((exp, idx) => (
-                    <tr key={exp.id} className="hover:bg-indigo-50/30 transition-colors">
-                      <td className="px-6 py-4 text-sm text-gray-400 font-medium">{idx + 1}</td>
-                      <td className="px-6 py-4 font-semibold text-gray-800">{exp.title}</td>
+                    <tr key={exp.id} className="hover:bg-amber-50/40 transition-colors">
+                      <td className="px-6 py-4 text-sm text-stone-400 font-mono">{idx + 1}</td>
+                      <td className="px-6 py-4 font-semibold text-stone-800">{exp.title}</td>
                       <td className="px-6 py-4">
-                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${CATEGORY_COLORS[exp.category] || 'bg-gray-100 text-gray-600'}`}>{exp.category}</span>
+                        <span className={`inline-block px-3 py-1 rounded-full border text-xs font-bold ${CATEGORY_COLORS[exp.category] || 'bg-stone-100 text-stone-600 border-stone-200'}`}>{exp.category}</span>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-500">{exp.date}</td>
-                      <td className="px-6 py-4 text-right font-bold text-gray-800">${exp.amount.toFixed(2)}</td>
+                      <td className="px-6 py-4 text-sm text-stone-500 font-mono">{exp.date}</td>
+                      <td className="px-6 py-4 text-right font-mono font-semibold text-stone-800">${exp.amount.toFixed(2)}</td>
                       <td className="px-6 py-4">
                         <div className="flex items-center justify-end gap-1">
-                          <button onClick={() => openEditModal(exp)} className="p-2 text-indigo-600 hover:bg-indigo-100 rounded-lg transition" title="Edit"><Icon.Edit /></button>
-                          <button onClick={() => onDelete(exp.id)} className="p-2 text-red-500 hover:bg-red-100 rounded-lg transition" title="Delete"><Icon.Delete /></button>
+                          <button onClick={() => openEditModal(exp)} className="p-2 text-stone-500 hover:bg-amber-100 hover:text-amber-700 rounded-full transition" title="Edit"><Icon.Edit /></button>
+                          <button onClick={() => onDelete(exp.id)} className="p-2 text-stone-500 hover:bg-rose-100 hover:text-rose-600 rounded-full transition" title="Delete"><Icon.Delete /></button>
                         </div>
                       </td>
                     </tr>
                   ))}
                 </tbody>
-                <tfoot className="bg-gray-50 border-t border-gray-200">
+                <tfoot className="bg-stone-50 border-t border-stone-200">
                   <tr>
-                    <td colSpan={4} className="px-6 py-4 text-sm font-bold text-gray-600">
+                    <td colSpan={4} className="px-6 py-4 text-sm font-bold text-stone-600">
                       Total ({filtered.length} {filtered.length === 1 ? 'item' : 'items'})
                     </td>
-                    <td className="px-6 py-4 text-right font-bold text-indigo-700 text-lg">${totalAmount.toFixed(2)}</td>
+                    <td className="px-6 py-4 text-right font-mono font-bold text-amber-600 text-lg">${totalAmount.toFixed(2)}</td>
                     <td />
                   </tr>
                 </tfoot>
@@ -1271,30 +1302,30 @@ function ExpensesPage({ expenses, onAdd, onUpdate, onDelete }) {
             </div>
 
             {/* Mobile */}
-            <div className="md:hidden divide-y divide-gray-100">
+            <div className="md:hidden divide-y divide-stone-100">
               {filtered.map(exp => (
-                <div key={exp.id} className="p-4 hover:bg-gray-50 transition">
+                <div key={exp.id} className="p-4 hover:bg-stone-50 transition">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-gray-800 truncate">{exp.title}</p>
+                      <p className="font-semibold text-stone-800 truncate">{exp.title}</p>
                       <div className="flex items-center gap-2 mt-1.5">
-                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${CATEGORY_COLORS[exp.category] || 'bg-gray-100 text-gray-600'}`}>{exp.category}</span>
-                        <span className="text-xs text-gray-400">{exp.date}</span>
+                        <span className={`px-2.5 py-0.5 rounded-full border text-xs font-bold ${CATEGORY_COLORS[exp.category] || 'bg-stone-100 text-stone-600 border-stone-200'}`}>{exp.category}</span>
+                        <span className="text-xs text-stone-400 font-mono">{exp.date}</span>
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-2 shrink-0">
-                      <span className="font-bold text-gray-800">${exp.amount.toFixed(2)}</span>
+                      <span className="font-mono font-semibold text-stone-800">${exp.amount.toFixed(2)}</span>
                       <div className="flex gap-1">
-                        <button onClick={() => openEditModal(exp)} className="p-1.5 text-indigo-600 hover:bg-indigo-100 rounded-lg transition"><Icon.Edit /></button>
-                        <button onClick={() => onDelete(exp.id)} className="p-1.5 text-red-500 hover:bg-red-100 rounded-lg transition"><Icon.Delete /></button>
+                        <button onClick={() => openEditModal(exp)} className="p-1.5 text-stone-500 hover:bg-amber-100 hover:text-amber-700 rounded-full transition"><Icon.Edit /></button>
+                        <button onClick={() => onDelete(exp.id)} className="p-1.5 text-stone-500 hover:bg-rose-100 hover:text-rose-600 rounded-full transition"><Icon.Delete /></button>
                       </div>
                     </div>
                   </div>
                 </div>
               ))}
-              <div className="px-4 py-3.5 bg-gray-50 flex justify-between items-center">
-                <span className="text-sm font-bold text-gray-600">Total ({filtered.length} {filtered.length === 1 ? 'item' : 'items'})</span>
-                <span className="font-bold text-indigo-700">${totalAmount.toFixed(2)}</span>
+              <div className="px-4 py-3.5 bg-stone-50 flex justify-between items-center">
+                <span className="text-sm font-bold text-stone-600">Total ({filtered.length} {filtered.length === 1 ? 'item' : 'items'})</span>
+                <span className="font-mono font-bold text-amber-600">${totalAmount.toFixed(2)}</span>
               </div>
             </div>
           </>
