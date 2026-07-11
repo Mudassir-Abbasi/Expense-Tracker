@@ -1,0 +1,46 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── User profile documents ────────────────────────────────────────────
+    // Each signed-in user may only read/write their own profile doc.
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // ── Expense subcollection ──────────────────────────────────────────────
+    // Each signed-in user may only read/write their own expenses.
+    match /users/{uid}/expenses/{expenseId} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // ── Username registry ───────────────────────────────────────────────────
+    // Doc ID is username.trim().toLowerCase(); body is { uid }. This
+    // collection makes username uniqueness atomic and race-free: signUp and
+    // updateUsernameEmail rely on the "create" rule below rejecting a claim
+    // on an already-existing doc instead of doing a separate read-then-write
+    // existence check (which would be subject to a TOCTOU race and would
+    // also be case-sensitive if implemented as a plain query on
+    // users.username).
+    match /usernames/{usernameLower} {
+      // No sensitive data lives here (just a uid pointer), and existence
+      // needs to be publicly checkable for the create rule itself to work,
+      // so open reads are safe.
+      allow read: if true;
+
+      // Only the authenticated user who owns `uid` may claim a username,
+      // and only if nobody already holds that (lowercased) username.
+      allow create: if request.auth != null
+                    && request.auth.uid == request.resource.data.uid
+                    && !exists(/databases/$(database)/documents/usernames/$(usernameLower));
+
+      // Usernames are never edited in place — a rename is modeled as
+      // delete-old + create-new, so in-place updates are always rejected.
+      allow update: if false;
+
+      // Only the uid currently holding a username may release it.
+      allow delete: if request.auth != null && request.auth.uid == resource.data.uid;
+    }
+  }
+}

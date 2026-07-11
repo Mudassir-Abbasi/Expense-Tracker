@@ -3,34 +3,23 @@ import { Routes, Route, Navigate, Outlet, Link, useNavigate, useLocation } from 
 import Cropper from 'react-easy-crop'
 import 'react-easy-crop/react-easy-crop.css'
 import './App.css'
-
-// ── LocalStorage helpers ──────────────────────────────────────────────────────
-// Users (with their profileImage inline) live under one key; each user's
-// expenses live under their own key, namespaced by a stable user id so
-// renaming a username/email never requires migrating storage keys.
-
-const LS = {
-  getUsers: () => JSON.parse(localStorage.getItem('et_users') || '[]'),
-  saveUsers: (users) => localStorage.setItem('et_users', JSON.stringify(users)),
-  getUserByEmail: (email) => {
-    const users = LS.getUsers()
-    return users.find(u => u.email === email.trim().toLowerCase()) ?? null
-  },
-  getUserById: (id) => LS.getUsers().find(u => u.id === id) ?? null,
-  updateUser: (id, updates) => {
-    const users = LS.getUsers()
-    const next = users.map(u => (u.id === id ? { ...u, ...updates } : u))
-    LS.saveUsers(next)
-    return next.find(u => u.id === id) ?? null
-  },
-
-  getSession: () => JSON.parse(localStorage.getItem('et_session') || 'null'),
-  saveSession: (user) => localStorage.setItem('et_session', JSON.stringify(user)),
-  clearSession: () => localStorage.removeItem('et_session'),
-
-  getExpenses: (userId) => JSON.parse(localStorage.getItem(`et_expenses_${userId}`) || '[]'),
-  saveExpenses: (userId, data) => localStorage.setItem(`et_expenses_${userId}`, JSON.stringify(data)),
-}
+import {
+  signUp,
+  signIn,
+  signOutUser,
+  sendResetEmail,
+  onAuthChange,
+  updateUsernameEmail,
+  updateUserPassword,
+  updateAvatar,
+  authErrorMessage,
+} from './services/auth'
+import {
+  subscribeExpenses,
+  addExpense,
+  updateExpense,
+  deleteExpense,
+} from './services/expenses'
 
 // ── Image helpers (file → data URL, crop → JPEG data URL) ─────────────────────
 
@@ -79,6 +68,11 @@ const CATEGORY_COLORS = {
 }
 
 const EMPTY_EXPENSE_FORM = { title: '', amount: '', category: 'Food', date: '' }
+
+// Firestore documents are capped at ~1MiB. Budget ~700KB of that for the
+// base64 avatar string (dataUrl.length is ~1 byte per char since it's plain
+// ASCII), leaving generous headroom for the rest of the profile doc's fields.
+const MAX_AVATAR_DATA_URL_LENGTH = 700 * 1024
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -190,12 +184,6 @@ const Icon = {
     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
         d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-    </svg>
-  ),
-  Shield: () => (
-    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
     </svg>
   ),
 }
@@ -325,10 +313,11 @@ function SignInScreen({ onSuccess }) {
   const [form, setForm] = useState({ email: '', password: '' })
   const [errors, setErrors] = useState({})
   const [showPw, setShowPw] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
 
   const set = (k) => (e) => { setForm(p => ({ ...p, [k]: e.target.value })); setErrors(p => ({ ...p, [k]: '' })) }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     const errs = {}
     if (!form.email.trim()) errs.email = 'Email is required.'
@@ -336,12 +325,21 @@ function SignInScreen({ onSuccess }) {
     if (!form.password) errs.password = 'Password is required.'
     if (Object.keys(errs).length) { setErrors(errs); return }
 
-    const match = LS.getUserByEmail(form.email.trim())
-    if (!match) { setErrors({ email: 'No account found with this email.' }); return }
-    if (match.password !== form.password) { setErrors({ password: 'Incorrect password.' }); return }
-
-    LS.saveSession(match)
-    onSuccess(match)
+    setSubmitting(true)
+    try {
+      const user = await signIn(form.email, form.password)
+      onSuccess(user)
+    } catch (err) {
+      if (err.code === 'auth/user-not-found') setErrors({ email: 'No account found with this email.' })
+      else if (err.code === 'auth/wrong-password') setErrors({ password: 'Incorrect password.' })
+      else if (err.code === 'auth/invalid-credential' || err.code === 'auth/invalid-login-credentials') {
+        setErrors({ password: 'Incorrect email or password.' })
+      } else {
+        setErrors({ password: authErrorMessage(err) })
+      }
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -367,8 +365,8 @@ function SignInScreen({ onSuccess }) {
             Forgot password?
           </Link>
         </div>
-        <button type="submit"
-          className="w-full bg-stone-900 text-white py-3.5 rounded-full font-semibold hover:bg-amber-600 transition shadow-sm text-sm tracking-wide">
+        <button type="submit" disabled={submitting}
+          className="w-full bg-stone-900 text-white py-3.5 rounded-full font-semibold hover:bg-amber-600 transition shadow-sm text-sm tracking-wide disabled:opacity-60">
           Sign In
         </button>
       </form>
@@ -387,10 +385,11 @@ function SignUpScreen({ onSuccess }) {
   const [errors, setErrors] = useState({})
   const [showPw, setShowPw] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
 
   const set = (k) => (e) => { setForm(p => ({ ...p, [k]: e.target.value })); setErrors(p => ({ ...p, [k]: '' })) }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     const errs = {}
     if (!form.username.trim()) errs.username = 'Username is required.'
@@ -408,26 +407,18 @@ function SignUpScreen({ onSuccess }) {
 
     if (Object.keys(errs).length) { setErrors(errs); return }
 
-    const users = LS.getUsers()
-    if (users.some(u => u.email === form.email.trim().toLowerCase())) {
-      setErrors({ email: 'An account with this email already exists.' }); return
+    setSubmitting(true)
+    try {
+      const user = await signUp(form.username, form.email, form.password)
+      onSuccess(user)
+    } catch (err) {
+      if (err.code === 'app/username-taken') setErrors({ username: err.message })
+      else if (err.code === 'auth/email-already-in-use') setErrors({ email: 'An account with this email already exists.' })
+      else if (err.code === 'auth/weak-password') setErrors({ password: 'Must be at least 6 characters.' })
+      else setErrors({ email: authErrorMessage(err) })
+    } finally {
+      setSubmitting(false)
     }
-    if (users.some(u => u.username.toLowerCase() === form.username.trim().toLowerCase())) {
-      setErrors({ username: 'This username is already taken.' }); return
-    }
-
-    const newUser = {
-      id: Date.now(),
-      username: form.username.trim(),
-      email: form.email.trim().toLowerCase(),
-      password: form.password,
-      profileImage: null,
-      createdAt: new Date().toISOString(),
-    }
-    LS.saveUsers([...users, newUser])
-    LS.saveExpenses(newUser.id, [])
-    LS.saveSession(newUser)
-    onSuccess(newUser)
   }
 
   return (
@@ -461,8 +452,8 @@ function SignUpScreen({ onSuccess }) {
             </button>
           }
         />
-        <button type="submit"
-          className="w-full bg-stone-900 text-white py-3.5 rounded-full font-semibold hover:bg-amber-600 transition shadow-sm text-sm tracking-wide mt-1">
+        <button type="submit" disabled={submitting}
+          className="w-full bg-stone-900 text-white py-3.5 rounded-full font-semibold hover:bg-amber-600 transition shadow-sm text-sm tracking-wide mt-1 disabled:opacity-60">
           Create Account
         </button>
       </form>
@@ -477,48 +468,40 @@ function SignUpScreen({ onSuccess }) {
 // ── Forgot Password ───────────────────────────────────────────────────────────
 
 function ForgotPasswordScreen() {
-  const [step, setStep] = useState(1)          // 1 = enter email, 2 = reset password
+  const [step, setStep] = useState(1)          // 1 = enter email, 2 = check your inbox
   const [email, setEmail] = useState('')
   const [emailError, setEmailError] = useState('')
-  const [form, setForm] = useState({ newPw: '', confirm: '' })
-  const [errors, setErrors] = useState({})
-  const [showNew, setShowNew] = useState(false)
-  const [showConfirm, setShowConfirm] = useState(false)
-  const [done, setDone] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
 
-  const handleFindAccount = (e) => {
+  const handleFindAccount = async (e) => {
     e.preventDefault()
     if (!email.trim()) { setEmailError('Email is required.'); return }
     if (!isValidEmail(email)) { setEmailError('Enter a valid email address.'); return }
-    const user = LS.getUserByEmail(email.trim())
-    if (!user) { setEmailError('No account found with this email address.'); return }
+
     setEmailError('')
-    setStep(2)
+    setSubmitting(true)
+    try {
+      await sendResetEmail(email)
+      setStep(2)
+    } catch (err) {
+      setEmailError(authErrorMessage(err))
+    } finally {
+      setSubmitting(false)
+    }
   }
 
-  const handleReset = (e) => {
-    e.preventDefault()
-    const errs = {}
-    if (!form.newPw) errs.newPw = 'New password is required.'
-    else if (form.newPw.length < 6) errs.newPw = 'Must be at least 6 characters.'
-    if (!form.confirm) errs.confirm = 'Please confirm your password.'
-    else if (form.confirm !== form.newPw) errs.confirm = 'Passwords do not match.'
-    if (Object.keys(errs).length) { setErrors(errs); return }
-
-    const user = LS.getUserByEmail(email.trim())
-    LS.updateUser(user.id, { password: form.newPw })
-    setDone(true)
-  }
-
-  if (done) {
+  if (step === 2) {
     return (
       <AuthCard>
         <div className="text-center py-6">
           <div className="w-16 h-16 border border-emerald-200 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-5 text-emerald-600">
             <Icon.CheckCircle />
           </div>
-          <h2 className="font-serif text-2xl text-stone-900 mb-2">Password reset!</h2>
-          <p className="text-stone-400 text-sm mb-7">Your password has been updated successfully. You can now sign in with your new password.</p>
+          <h2 className="font-serif text-2xl text-stone-900 mb-2">Check your inbox</h2>
+          <p className="text-stone-400 text-sm mb-7">
+            We&apos;ve sent a password reset link to <span className="font-semibold text-amber-600">{email}</span>.
+            Follow the instructions in the email to set a new password.
+          </p>
           <Link to="/login"
             className="block w-full bg-stone-900 text-white py-3.5 rounded-full font-semibold hover:bg-amber-600 transition shadow-sm text-sm text-center tracking-wide">
             Back to Sign In
@@ -534,66 +517,22 @@ function ForgotPasswordScreen() {
         <Icon.ArrowLeft /> Back to Sign In
       </Link>
 
-      {step === 1 ? (
-        <>
-          <div className="mb-7">
-            <div className="w-12 h-12 border border-amber-200 bg-amber-50 rounded-full flex items-center justify-center mb-4 text-amber-600">
-              <Icon.Key />
-            </div>
-            <h2 className="font-serif text-3xl text-stone-900">Forgot password?</h2>
-            <p className="text-stone-400 text-sm mt-1.5">Enter your registered email to reset your password.</p>
-          </div>
-          <form onSubmit={handleFindAccount} className="space-y-5" noValidate>
-            <InputField label="Registered email" type="email" value={email}
-              onChange={e => { setEmail(e.target.value); setEmailError('') }}
-              placeholder="you@example.com" icon={Icon.Mail} error={emailError} />
-            <button type="submit"
-              className="w-full bg-stone-900 text-white py-3.5 rounded-full font-semibold hover:bg-amber-600 transition shadow-sm text-sm tracking-wide">
-              Find Account
-            </button>
-          </form>
-        </>
-      ) : (
-        <>
-          <div className="mb-7">
-            <div className="w-12 h-12 border border-amber-200 bg-amber-50 rounded-full flex items-center justify-center mb-4 text-amber-600">
-              <Icon.Shield />
-            </div>
-            <h2 className="font-serif text-3xl text-stone-900">Reset password</h2>
-            <p className="text-stone-400 text-sm mt-1.5">
-              Account found for <span className="font-semibold text-amber-600">{email}</span>.
-              Set your new password below.
-            </p>
-          </div>
-          <form onSubmit={handleReset} className="space-y-5" noValidate>
-            <div>
-              <InputField label="New password" type={showNew ? 'text' : 'password'} value={form.newPw}
-                onChange={e => { setForm(p => ({ ...p, newPw: e.target.value })); setErrors(p => ({ ...p, newPw: '' })) }}
-                placeholder="Min. 6 characters" icon={Icon.Lock} error={errors.newPw}
-                rightSlot={
-                  <button type="button" onClick={() => setShowNew(p => !p)} className="text-stone-400 hover:text-stone-600" tabIndex={-1}>
-                    {showNew ? <Icon.EyeOff /> : <Icon.Eye />}
-                  </button>
-                }
-              />
-              <PasswordStrengthBar password={form.newPw} />
-            </div>
-            <InputField label="Confirm new password" type={showConfirm ? 'text' : 'password'} value={form.confirm}
-              onChange={e => { setForm(p => ({ ...p, confirm: e.target.value })); setErrors(p => ({ ...p, confirm: '' })) }}
-              placeholder="Re-enter new password" icon={Icon.Lock} error={errors.confirm}
-              rightSlot={
-                <button type="button" onClick={() => setShowConfirm(p => !p)} className="text-stone-400 hover:text-stone-600" tabIndex={-1}>
-                  {showConfirm ? <Icon.EyeOff /> : <Icon.Eye />}
-                </button>
-              }
-            />
-            <button type="submit"
-              className="w-full bg-stone-900 text-white py-3.5 rounded-full font-semibold hover:bg-amber-600 transition shadow-sm text-sm tracking-wide">
-              Reset Password
-            </button>
-          </form>
-        </>
-      )}
+      <div className="mb-7">
+        <div className="w-12 h-12 border border-amber-200 bg-amber-50 rounded-full flex items-center justify-center mb-4 text-amber-600">
+          <Icon.Key />
+        </div>
+        <h2 className="font-serif text-3xl text-stone-900">Forgot password?</h2>
+        <p className="text-stone-400 text-sm mt-1.5">Enter your registered email to reset your password.</p>
+      </div>
+      <form onSubmit={handleFindAccount} className="space-y-5" noValidate>
+        <InputField label="Registered email" type="email" value={email}
+          onChange={e => { setEmail(e.target.value); setEmailError('') }}
+          placeholder="you@example.com" icon={Icon.Mail} error={emailError} />
+        <button type="submit" disabled={submitting}
+          className="w-full bg-stone-900 text-white py-3.5 rounded-full font-semibold hover:bg-amber-600 transition shadow-sm text-sm tracking-wide disabled:opacity-60">
+          Find Account
+        </button>
+      </form>
     </AuthCard>
   )
 }
@@ -602,6 +541,7 @@ function ForgotPasswordScreen() {
 
 function ProfilePage({ currentUser, onUserUpdate }) {
   const navigate = useNavigate()
+  const showToast = useToast()
   const avatar = currentUser.profileImage
   const [cropperImage, setCropperImage] = useState(null)
 
@@ -609,11 +549,13 @@ function ProfilePage({ currentUser, onUserUpdate }) {
   const [profile, setProfile] = useState({ username: currentUser.username, email: currentUser.email })
   const [profileErrors, setProfileErrors] = useState({})
   const [profileSuccess, setProfileSuccess] = useState('')
+  const [profileSubmitting, setProfileSubmitting] = useState(false)
 
   // Change password form
   const [pw, setPw] = useState({ current: '', newPw: '', confirm: '' })
   const [pwErrors, setPwErrors] = useState({})
   const [pwSuccess, setPwSuccess] = useState('')
+  const [pwSubmitting, setPwSubmitting] = useState(false)
   const [showCurrent, setShowCurrent] = useState(false)
   const [showNew, setShowNew] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
@@ -627,20 +569,29 @@ function ProfilePage({ currentUser, onUserUpdate }) {
     setCropperImage(await readFileAsDataUrl(file))
   }
 
-  const handleCropSave = (croppedImage) => {
-    const updatedUser = LS.updateUser(currentUser.id, { profileImage: croppedImage })
-    onUserUpdate(updatedUser)
-    setCropperImage(null)
+  const handleCropSave = async (croppedImage) => {
+    try {
+      const updatedUser = await updateAvatar(currentUser.uid, croppedImage)
+      onUserUpdate(updatedUser)
+    } catch (err) {
+      showToast(authErrorMessage(err))
+    } finally {
+      setCropperImage(null)
+    }
   }
 
   const handleCropCancel = () => setCropperImage(null)
 
-  const handleRemoveAvatar = () => {
-    const updatedUser = LS.updateUser(currentUser.id, { profileImage: null })
-    onUserUpdate(updatedUser)
+  const handleRemoveAvatar = async () => {
+    try {
+      const updatedUser = await updateAvatar(currentUser.uid, null)
+      onUserUpdate(updatedUser)
+    } catch (err) {
+      showToast(authErrorMessage(err))
+    }
   }
 
-  const handleProfileSave = (e) => {
+  const handleProfileSave = async (e) => {
     e.preventDefault()
     setProfileSuccess('')
     const errs = {}
@@ -651,28 +602,23 @@ function ProfilePage({ currentUser, onUserUpdate }) {
     else if (!isValidEmail(profile.email)) errs.email = 'Enter a valid email address.'
     if (Object.keys(errs).length) { setProfileErrors(errs); return }
 
-    const newEmail = profile.email.trim().toLowerCase()
-    const newUsername = profile.username.trim()
-    const users = LS.getUsers()
-
-    if (newEmail !== currentUser.email &&
-      users.some(u => u.email === newEmail)) {
-      setProfileErrors({ email: 'This email is already in use.' }); return
+    setProfileSubmitting(true)
+    try {
+      const updatedUser = await updateUsernameEmail(currentUser.uid, { username: profile.username, email: profile.email })
+      onUserUpdate(updatedUser)
+      setProfileErrors({})
+      setProfileSuccess('Profile updated successfully!')
+      setTimeout(() => setProfileSuccess(''), 4000)
+    } catch (err) {
+      if (err.code === 'app/username-taken') setProfileErrors({ username: err.message })
+      else if (err.code === 'auth/email-already-in-use') setProfileErrors({ email: 'This email is already in use.' })
+      else setProfileErrors({ email: authErrorMessage(err) })
+    } finally {
+      setProfileSubmitting(false)
     }
-    if (newUsername.toLowerCase() !== currentUser.username.toLowerCase() &&
-      users.some(u => u.username.toLowerCase() === newUsername.toLowerCase())) {
-      setProfileErrors({ username: 'This username is already taken.' }); return
-    }
-
-    const updatedUser = LS.updateUser(currentUser.id, { username: newUsername, email: newEmail })
-    LS.saveSession(updatedUser)
-    onUserUpdate(updatedUser)
-    setProfileErrors({})
-    setProfileSuccess('Profile updated successfully!')
-    setTimeout(() => setProfileSuccess(''), 4000)
   }
 
-  const handlePasswordSave = (e) => {
+  const handlePasswordSave = async (e) => {
     e.preventDefault()
     setPwSuccess('')
     const errs = {}
@@ -682,16 +628,26 @@ function ProfilePage({ currentUser, onUserUpdate }) {
     if (!pw.confirm) errs.confirm = 'Please confirm your new password.'
     else if (pw.confirm !== pw.newPw) errs.confirm = 'Passwords do not match.'
     if (Object.keys(errs).length) { setPwErrors(errs); return }
-
-    const user = LS.getUserById(currentUser.id)
-    if (user.password !== pw.current) { setPwErrors({ current: 'Current password is incorrect.' }); return }
     if (pw.newPw === pw.current) { setPwErrors({ newPw: 'New password must be different from current password.' }); return }
 
-    LS.updateUser(currentUser.id, { password: pw.newPw })
-    setPw({ current: '', newPw: '', confirm: '' })
-    setPwErrors({})
-    setPwSuccess('Password changed successfully!')
-    setTimeout(() => setPwSuccess(''), 4000)
+    setPwSubmitting(true)
+    try {
+      await updateUserPassword(pw.current, pw.newPw)
+      setPw({ current: '', newPw: '', confirm: '' })
+      setPwErrors({})
+      setPwSuccess('Password changed successfully!')
+      setTimeout(() => setPwSuccess(''), 4000)
+    } catch (err) {
+      if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+        setPwErrors({ current: 'Current password is incorrect.' })
+      } else if (err.code === 'auth/weak-password') {
+        setPwErrors({ newPw: 'Must be at least 6 characters.' })
+      } else {
+        setPwErrors({ current: authErrorMessage(err) })
+      }
+    } finally {
+      setPwSubmitting(false)
+    }
   }
 
   const setPField = (k) => (e) => {
@@ -772,9 +728,9 @@ function ProfilePage({ currentUser, onUserUpdate }) {
               <InputField label="Email address" type="email" value={profile.email} onChange={setPField('email')}
                 placeholder="your@email.com" icon={Icon.Mail} error={profileErrors.email} />
               <div className="flex justify-end">
-                <button type="submit"
-                  className="px-6 py-2.5 bg-stone-900 text-white rounded-full font-semibold hover:bg-amber-600 transition shadow-sm text-sm tracking-wide">
-                  Save Changes
+                <button type="submit" disabled={profileSubmitting}
+                  className="px-6 py-2.5 bg-stone-900 text-white rounded-full font-semibold hover:bg-amber-600 transition shadow-sm text-sm tracking-wide disabled:opacity-60">
+                  {profileSubmitting ? 'Saving…' : 'Save Changes'}
                 </button>
               </div>
             </form>
@@ -821,9 +777,9 @@ function ProfilePage({ currentUser, onUserUpdate }) {
                 }
               />
               <div className="flex justify-end">
-                <button type="submit"
-                  className="px-6 py-2.5 bg-stone-900 text-white rounded-full font-semibold hover:bg-amber-600 transition shadow-sm text-sm tracking-wide">
-                  Update Password
+                <button type="submit" disabled={pwSubmitting}
+                  className="px-6 py-2.5 bg-stone-900 text-white rounded-full font-semibold hover:bg-amber-600 transition shadow-sm text-sm tracking-wide disabled:opacity-60">
+                  {pwSubmitting ? 'Updating…' : 'Update Password'}
                 </button>
               </div>
             </form>
@@ -846,6 +802,7 @@ function AvatarCropperModal({ imageSrc, onCancel, onSave }) {
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null)
   const [previewUrl, setPreviewUrl] = useState(null)
   const [saving, setSaving] = useState(false)
+  const [sizeError, setSizeError] = useState('')
   const imageRef = useRef(null)
 
   useEffect(() => {
@@ -863,8 +820,13 @@ function AvatarCropperModal({ imageSrc, onCancel, onSave }) {
 
   const handleSave = () => {
     if (!croppedAreaPixels || !imageRef.current) return
-    setSaving(true)
+    setSizeError('')
     const finalImage = cropImageToDataUrl(imageRef.current, croppedAreaPixels, 320)
+    if (finalImage.length > MAX_AVATAR_DATA_URL_LENGTH) {
+      setSizeError('Image is too large — please choose a smaller photo or crop it tighter.')
+      return
+    }
+    setSaving(true)
     onSave(finalImage)
     setSaving(false)
   }
@@ -909,6 +871,8 @@ function AvatarCropperModal({ imageSrc, onCancel, onSave }) {
           </div>
           <p className="text-xs text-stone-400">Live preview of your new profile picture</p>
         </div>
+
+        {sizeError && <div className="mt-4"><Alert type="error">{sizeError}</Alert></div>}
 
         <div className="flex gap-3 pt-6">
           <button type="button" onClick={onCancel}
@@ -1343,29 +1307,49 @@ function AppRoutes() {
   const navigate  = useNavigate()
   const showToast = useToast()
 
-  const [currentUser, setCurrentUser] = useState(() => LS.getSession())
-  const [expenses, setExpenses]       = useState(() => currentUser ? LS.getExpenses(currentUser.id) : [])
+  const [currentUser, setCurrentUser] = useState(null)
+  const [authLoading, setAuthLoading] = useState(true)
+  const [expenses, setExpenses]       = useState([])
 
-  // Persist expenses whenever they change
+  // Subscribe to Firebase Auth session state on mount. `err` is set when a
+  // signed-in Firebase Auth user's profile doc couldn't be loaded — in that
+  // case the service has already forced a sign-out, and we surface a toast
+  // explaining why instead of silently dropping to the login screen.
   useEffect(() => {
-    if (currentUser) LS.saveExpenses(currentUser.id, expenses)
-  }, [expenses, currentUser])
+    const unsubscribe = onAuthChange((user, err) => {
+      setCurrentUser(user)
+      setAuthLoading(false)
+      if (err) {
+        showToast(authErrorMessage(err))
+      }
+    })
+    return unsubscribe
+  }, [showToast])
+
+  // Subscribe to live Firestore updates for the signed-in user's expenses.
+  useEffect(() => {
+    if (!currentUser) { setExpenses([]); return }
+    const unsubscribe = subscribeExpenses(currentUser.uid, setExpenses)
+    return unsubscribe
+  }, [currentUser?.uid])
 
   const handleLoginSuccess = (user) => {
     setCurrentUser(user)
-    setExpenses(LS.getExpenses(user.id))
     showToast('Login Successfully')
     navigate('/')
   }
 
   const handleSignupSuccess = (user) => {
     setCurrentUser(user)
-    setExpenses([])
     navigate('/')
   }
 
-  const handleLogout = () => {
-    LS.clearSession()
+  const handleLogout = async () => {
+    try {
+      await signOutUser()
+    } catch (err) {
+      showToast(authErrorMessage(err))
+    }
     setCurrentUser(null)
     setExpenses([])
     showToast('Logout Successfully')
@@ -1377,19 +1361,36 @@ function AppRoutes() {
     setCurrentUser(updatedUser)
   }
 
-  const handleAddExpense = (formData) => {
-    setExpenses(prev => [{ id: Date.now(), ...formData }, ...prev])
-    showToast('Expense Added Successfully')
+  const handleAddExpense = async (formData) => {
+    try {
+      await addExpense(currentUser.uid, formData)
+      showToast('Expense Added Successfully')
+    } catch (err) {
+      showToast(authErrorMessage(err))
+    }
   }
 
-  const handleUpdateExpense = (id, formData) => {
-    setExpenses(prev => prev.map(e => e.id === id ? { ...e, ...formData } : e))
-    showToast('Expense Updated Successfully')
+  const handleUpdateExpense = async (id, formData) => {
+    try {
+      await updateExpense(currentUser.uid, id, formData)
+      showToast('Expense Updated Successfully')
+    } catch (err) {
+      showToast(authErrorMessage(err))
+    }
   }
 
-  const handleDeleteExpense = (id) => {
-    setExpenses(prev => prev.filter(e => e.id !== id))
-    showToast('Expense Deleted Successfully')
+  const handleDeleteExpense = async (id) => {
+    try {
+      await deleteExpense(currentUser.uid, id)
+      showToast('Expense Deleted Successfully')
+    } catch (err) {
+      showToast(authErrorMessage(err))
+    }
+  }
+
+  // Avoid flashing the login screen while Firebase resolves the session on first load.
+  if (authLoading) {
+    return <div className="min-h-screen bg-stone-50" />
   }
 
   return (
