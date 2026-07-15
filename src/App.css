@@ -1,1 +1,58 @@
 @import "tailwindcss";
+
+@theme {
+  /* Mint — page backgrounds (auth screens, navbar) */
+  --color-mint-50: #F4F9F5;
+  --color-mint-100: #E4F0E7;
+  --color-mint-200: #D2E5D7;
+  --color-mint-300: #B7D5BE;
+  --color-mint-600: #6D9B78;
+  --color-mint-900: #2E4A36;
+
+  /* Coral — primary CTA / brand accent */
+  --color-coral-50: #FCEEE8;
+  --color-coral-100: #F9DACC;
+  --color-coral-400: #EC9573;
+  --color-coral-500: #E67D57;
+  --color-coral-600: #DC6644;
+  --color-coral-700: #C1502F;
+  --color-coral-800: #9E3F26;
+
+  /* Sage — secondary action (Add Expense, filter toggles) */
+  --color-sage-50: #EEF3EA;
+  --color-sage-400: #9DB584;
+  --color-sage-500: #87A16C;
+  --color-sage-600: #728C59;
+  --color-sage-700: #5E7548;
+
+  /* Teal — deep accent (success, links on light bg) */
+  --color-teal-50: #E7F1EE;
+  --color-teal-200: #B9D6CD;
+  --color-teal-600: #276E5D;
+  --color-teal-700: #1E5A4C;
+
+  /* Gold — highlighted totals */
+  --color-gold-400: #F0C563;
+  --color-gold-500: #E8B84B;
+  --color-gold-600: #CC9C31;
+
+  /* Navy — dark secondary button (Update Password) */
+  --color-navy-700: #3B4C60;
+  --color-navy-800: #293848;
+  --color-navy-900: #1C2733;
+
+  /* Danger — destructive actions / errors */
+  --color-danger-50: #FBEAE7;
+  --color-danger-200: #EFBBAF;
+  --color-danger-500: #C24E3A;
+  --color-danger-600: #A83E2C;
+
+  /* Category badges — solid fill, white text */
+  --color-cat-food: #C57A46;
+  --color-cat-travel: #2E7D82;
+  --color-cat-entertainment: #7C5C8E;
+  --color-cat-bills: #4C6178;
+  --color-cat-shopping: #276E5D;
+  --color-cat-health: #5D8A5E;
+  --color-cat-other: #78716C;
+}
