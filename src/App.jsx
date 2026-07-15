@@ -971,9 +971,9 @@ function ToastProvider({ children }) {
       <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] flex flex-col items-center gap-2 w-full px-4 sm:w-auto pointer-events-none">
         {toasts.map(t => (
           <div key={t.id}
-            className="pointer-events-auto flex items-center gap-3 bg-navy-800 border border-navy-900 shadow-lg rounded-full pl-4 pr-3 py-3 text-sm font-semibold text-white w-full sm:min-w-[320px] animate-[toast-slide-in_0.25s_ease-out]">
+            className="pointer-events-auto flex items-center justify-center gap-3 bg-navy-800 border border-navy-900 shadow-lg rounded-2xl sm:rounded-full px-4 py-3 text-sm font-semibold text-white w-full max-w-full sm:w-auto sm:min-w-[320px] animate-[toast-slide-in_0.25s_ease-out]">
             <span className="text-teal-200 shrink-0"><Icon.CheckCircle /></span>
-            <span className="flex-1">{t.message}</span>
+            <span className="text-center break-words">{t.message}</span>
           </div>
         ))}
       </div>
