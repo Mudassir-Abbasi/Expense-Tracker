@@ -58,13 +58,13 @@ const cropImageToDataUrl = (image, cropPixels, outputSize = 300, quality = 0.85)
 const CATEGORIES = ['All', 'Food', 'Travel', 'Entertainment', 'Bills', 'Shopping', 'Health', 'Other']
 
 const CATEGORY_COLORS = {
-  Food: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  Travel: 'bg-sky-50 text-sky-700 border-sky-200',
-  Entertainment: 'bg-violet-50 text-violet-700 border-violet-200',
-  Bills: 'bg-rose-50 text-rose-700 border-rose-200',
-  Shopping: 'bg-amber-50 text-amber-700 border-amber-200',
-  Health: 'bg-pink-50 text-pink-700 border-pink-200',
-  Other: 'bg-stone-100 text-stone-600 border-stone-200',
+  Food: 'bg-cat-food text-white',
+  Travel: 'bg-cat-travel text-white',
+  Entertainment: 'bg-cat-entertainment text-white',
+  Bills: 'bg-cat-bills text-white',
+  Shopping: 'bg-cat-shopping text-white',
+  Health: 'bg-cat-health text-white',
+  Other: 'bg-cat-other text-white',
 }
 
 const EMPTY_EXPENSE_FORM = { title: '', amount: '', category: 'Food', date: '' }
@@ -92,12 +92,6 @@ const pwStrength = (p) => {
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
 const Icon = {
-  Money: () => (
-    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-  ),
   Logout: () => (
     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -202,13 +196,13 @@ function InputField({ label, type = 'text', value, onChange, placeholder, icon: 
         )}
         <input
           type={type} value={value} onChange={onChange} placeholder={placeholder}
-          className={`w-full ${IconComp ? 'pl-10' : 'pl-4'} ${rightSlot ? 'pr-10' : 'pr-4'} py-3 border rounded-lg text-sm transition focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 ${error ? 'border-rose-400 bg-rose-50' : 'border-stone-300 bg-white'}`}
+          className={`w-full ${IconComp ? 'pl-10' : 'pl-4'} ${rightSlot ? 'pr-10' : 'pr-4'} py-3 border rounded-xl text-sm transition focus:outline-none focus:ring-2 focus:ring-coral-500/30 focus:border-coral-500 ${error ? 'border-danger-500 bg-danger-50' : 'border-stone-200 bg-white'}`}
         />
         {rightSlot && (
           <span className="absolute right-3.5 top-1/2 -translate-y-1/2">{rightSlot}</span>
         )}
       </div>
-      {error && <p className="mt-1.5 text-xs text-rose-500 font-medium">{error}</p>}
+      {error && <p className="mt-1.5 text-xs text-danger-600 font-medium">{error}</p>}
     </div>
   )
 }
@@ -217,8 +211,8 @@ function PasswordStrengthBar({ password }) {
   const score = pwStrength(password)
   if (!password) return null
   const labels = ['', 'Weak', 'Fair', 'Good', 'Strong', 'Very strong']
-  const colors = ['', 'bg-rose-400', 'bg-orange-400', 'bg-amber-400', 'bg-emerald-400', 'bg-emerald-500']
-  const textColors = ['', 'text-rose-500', 'text-orange-500', 'text-amber-600', 'text-emerald-600', 'text-emerald-600']
+  const colors = ['', 'bg-danger-500', 'bg-gold-500', 'bg-sage-400', 'bg-sage-600', 'bg-teal-600']
+  const textColors = ['', 'text-danger-600', 'text-gold-600', 'text-sage-600', 'text-sage-700', 'text-teal-700']
   return (
     <div className="mt-2">
       <div className="flex gap-1 mb-1">
@@ -233,9 +227,9 @@ function PasswordStrengthBar({ password }) {
 
 function Alert({ type, children }) {
   const styles = {
-    success: 'bg-emerald-50 border-emerald-200 text-emerald-700',
-    error:   'bg-rose-50 border-rose-200 text-rose-600',
-    info:    'bg-sky-50 border-sky-200 text-sky-700',
+    success: 'bg-teal-50 border-teal-200 text-teal-700',
+    error:   'bg-danger-50 border-danger-200 text-danger-600',
+    info:    'bg-mint-50 border-mint-200 text-mint-900',
   }
   const icons = { success: <Icon.CheckCircle />, error: null, info: null }
   return (
@@ -246,50 +240,29 @@ function Alert({ type, children }) {
   )
 }
 
+function BrandLogo() {
+  return <img src="/logo-icon.png" alt="ExpenseTracker" className="w-7 h-7 rounded-full shrink-0" />
+}
+
 function AuthCard({ children }) {
   return (
-    <div className="min-h-screen bg-stone-50 flex">
-      {/* Brand panel */}
-      <div className="hidden lg:flex lg:w-[44%] relative bg-stone-900 text-stone-50 flex-col justify-between p-12 overflow-hidden">
-        <div
-          className="absolute inset-0 opacity-[0.06] pointer-events-none"
-          style={{
-            backgroundImage: 'linear-gradient(to right, white 1px, transparent 1px), linear-gradient(to bottom, white 1px, transparent 1px)',
-            backgroundSize: '44px 44px',
-          }}
-        />
-        <div className="relative flex items-center gap-3">
-          <div className="w-10 h-10 border border-amber-400/50 rounded-full flex items-center justify-center text-amber-400">
-            <Icon.Money />
-          </div>
-          <span className="font-serif text-lg tracking-wide">ExpenseTracker</span>
+    <div className="min-h-screen bg-mint-100 flex items-center justify-center p-6 sm:p-10">
+      <div className="w-full max-w-md">
+        <div className="flex items-center gap-2.5 mb-8">
+          <BrandLogo />
+          <span className="font-serif text-lg text-stone-900 tracking-wide leading-none">ExpenseTracker</span>
         </div>
-        <div className="relative">
-          <p className="font-serif text-4xl xl:text-5xl leading-tight text-stone-50">
-            Every rupee,<br />rightly accounted.
-          </p>
-          <p className="text-stone-400 text-sm mt-5 max-w-sm leading-relaxed">
-            A calmer way to see where your money goes — track spending, spot
-            patterns, and stay in control of every expense.
-          </p>
-        </div>
-        <p className="relative text-xs text-stone-500 tracking-wide">
+        <p className="font-serif text-3xl sm:text-4xl leading-tight text-stone-900 mb-3">
+          Every rupee,<br />rightly accounted.
+        </p>
+        <p className="text-stone-500 text-sm mb-10 max-w-sm leading-relaxed">
+          A calmer way to see where your money goes — track spending, spot
+          patterns, and stay in control of every expense.
+        </p>
+        {children}
+        <p className="text-center text-xs text-stone-400 mt-10 tracking-wide">
           &copy; {new Date().getFullYear()} ExpenseTracker
         </p>
-      </div>
-
-      {/* Form panel */}
-      <div className="flex-1 flex items-center justify-center p-6 sm:p-10">
-        <div className="w-full max-w-md">
-          <div className="lg:hidden text-center mb-8">
-            <div className="w-12 h-12 bg-stone-900 rounded-full flex items-center justify-center mx-auto mb-3 text-amber-400">
-              <Icon.Money />
-            </div>
-            <h1 className="font-serif text-2xl text-stone-900 tracking-tight">ExpenseTracker</h1>
-            <p className="text-stone-400 text-xs mt-1">Your personal finance manager</p>
-          </div>
-          {children}
-        </div>
       </div>
     </div>
   )
@@ -301,7 +274,7 @@ function AvatarDisplay({ avatar, username, size = 'md', className = '' }) {
   return avatar
     ? <img src={avatar} alt={username} className={`${cls} object-cover`} />
     : (
-      <div className={`${cls} bg-gradient-to-br from-amber-400 to-amber-600 text-stone-900`}>
+      <div className={`${cls} bg-gradient-to-br from-coral-400 to-coral-600 text-white`}>
         {username?.charAt(0)?.toUpperCase() ?? '?'}
       </div>
     )
@@ -344,9 +317,9 @@ function SignInScreen({ onSuccess }) {
 
   return (
     <AuthCard>
-      <div className="mb-8">
-        <p className="text-xs font-bold tracking-[0.2em] text-amber-600 uppercase mb-2">Welcome back</p>
-        <h2 className="font-serif text-3xl text-stone-900">Sign in to continue</h2>
+      <div className="mb-6">
+        <p className="text-xs font-bold tracking-[0.2em] text-coral-600 uppercase mb-2">Welcome back</p>
+        <h2 className="font-serif text-2xl text-stone-900">Sign in to continue</h2>
       </div>
       <form onSubmit={handleSubmit} className="space-y-5" noValidate>
         <InputField label="Email address" type="email" value={form.email} onChange={set('email')}
@@ -361,18 +334,18 @@ function SignInScreen({ onSuccess }) {
         />
         <div className="flex justify-end -mt-1">
           <Link to="/forgot-password"
-            className="text-xs font-semibold text-stone-500 hover:text-amber-600 transition">
+            className="text-xs font-semibold text-stone-500 hover:text-coral-600 transition">
             Forgot password?
           </Link>
         </div>
         <button type="submit" disabled={submitting}
-          className="w-full bg-stone-900 text-white py-3.5 rounded-full font-semibold hover:bg-amber-600 transition shadow-sm text-sm tracking-wide disabled:opacity-60">
+          className="w-full bg-coral-600 text-white py-3.5 rounded-full font-semibold hover:bg-coral-700 active:bg-coral-800 transition shadow-sm text-sm tracking-wide disabled:opacity-60">
           Sign In
         </button>
       </form>
-      <p className="text-center text-sm text-stone-400 mt-8">
+      <p className="text-center text-sm text-stone-500 mt-8">
         Don&apos;t have an account?{' '}
-        <Link to="/signup" className="text-stone-900 font-semibold hover:text-amber-600 transition">Create one</Link>
+        <Link to="/signup" className="text-stone-900 font-semibold hover:text-coral-600 transition">Create one</Link>
       </p>
     </AuthCard>
   )
@@ -423,10 +396,10 @@ function SignUpScreen({ onSuccess }) {
 
   return (
     <AuthCard>
-      <div className="mb-7">
-        <p className="text-xs font-bold tracking-[0.2em] text-amber-600 uppercase mb-2">Get started</p>
-        <h2 className="font-serif text-3xl text-stone-900">Create your account</h2>
-        <p className="text-stone-400 text-sm mt-1.5">Start tracking your expenses for free</p>
+      <div className="mb-6">
+        <p className="text-xs font-bold tracking-[0.2em] text-coral-600 uppercase mb-2">Get started</p>
+        <h2 className="font-serif text-2xl text-stone-900">Create your account</h2>
+        <p className="text-stone-500 text-sm mt-1.5">Start tracking your expenses for free</p>
       </div>
       <form onSubmit={handleSubmit} className="space-y-5" noValidate>
         <InputField label="Username" value={form.username} onChange={set('username')}
@@ -453,13 +426,13 @@ function SignUpScreen({ onSuccess }) {
           }
         />
         <button type="submit" disabled={submitting}
-          className="w-full bg-stone-900 text-white py-3.5 rounded-full font-semibold hover:bg-amber-600 transition shadow-sm text-sm tracking-wide mt-1 disabled:opacity-60">
+          className="w-full bg-coral-600 text-white py-3.5 rounded-full font-semibold hover:bg-coral-700 active:bg-coral-800 transition shadow-sm text-sm tracking-wide mt-1 disabled:opacity-60">
           Create Account
         </button>
       </form>
-      <p className="text-center text-sm text-stone-400 mt-8">
+      <p className="text-center text-sm text-stone-500 mt-8">
         Already have an account?{' '}
-        <Link to="/login" className="text-stone-900 font-semibold hover:text-amber-600 transition">Sign in</Link>
+        <Link to="/login" className="text-stone-900 font-semibold hover:text-coral-600 transition">Sign in</Link>
       </p>
     </AuthCard>
   )
@@ -494,16 +467,16 @@ function ForgotPasswordScreen() {
     return (
       <AuthCard>
         <div className="text-center py-6">
-          <div className="w-16 h-16 border border-emerald-200 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-5 text-emerald-600">
+          <div className="w-16 h-16 border border-teal-200 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-5 text-teal-600">
             <Icon.CheckCircle />
           </div>
           <h2 className="font-serif text-2xl text-stone-900 mb-2">Check your inbox</h2>
-          <p className="text-stone-400 text-sm mb-7">
-            We&apos;ve sent a password reset link to <span className="font-semibold text-amber-600">{email}</span>.
+          <p className="text-stone-500 text-sm mb-7">
+            We&apos;ve sent a password reset link to <span className="font-semibold text-coral-600">{email}</span>.
             Follow the instructions in the email to set a new password.
           </p>
           <Link to="/login"
-            className="block w-full bg-stone-900 text-white py-3.5 rounded-full font-semibold hover:bg-amber-600 transition shadow-sm text-sm text-center tracking-wide">
+            className="block w-full bg-coral-600 text-white py-3.5 rounded-full font-semibold hover:bg-coral-700 active:bg-coral-800 transition shadow-sm text-sm text-center tracking-wide">
             Back to Sign In
           </Link>
         </div>
@@ -513,23 +486,23 @@ function ForgotPasswordScreen() {
 
   return (
     <AuthCard>
-      <Link to="/login" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-amber-600 mb-7 transition">
+      <Link to="/login" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-stone-500 hover:text-coral-600 mb-7 transition">
         <Icon.ArrowLeft /> Back to Sign In
       </Link>
 
       <div className="mb-7">
-        <div className="w-12 h-12 border border-amber-200 bg-amber-50 rounded-full flex items-center justify-center mb-4 text-amber-600">
+        <div className="w-12 h-12 border border-coral-100 bg-coral-50 rounded-full flex items-center justify-center mb-4 text-coral-600">
           <Icon.Key />
         </div>
-        <h2 className="font-serif text-3xl text-stone-900">Forgot password?</h2>
-        <p className="text-stone-400 text-sm mt-1.5">Enter your registered email to reset your password.</p>
+        <h2 className="font-serif text-2xl text-stone-900">Forgot password?</h2>
+        <p className="text-stone-500 text-sm mt-1.5">Enter your registered email to reset your password.</p>
       </div>
       <form onSubmit={handleFindAccount} className="space-y-5" noValidate>
         <InputField label="Registered email" type="email" value={email}
           onChange={e => { setEmail(e.target.value); setEmailError('') }}
           placeholder="you@example.com" icon={Icon.Mail} error={emailError} />
         <button type="submit" disabled={submitting}
-          className="w-full bg-stone-900 text-white py-3.5 rounded-full font-semibold hover:bg-amber-600 transition shadow-sm text-sm tracking-wide disabled:opacity-60">
+          className="w-full bg-coral-600 text-white py-3.5 rounded-full font-semibold hover:bg-coral-700 active:bg-coral-800 transition shadow-sm text-sm tracking-wide disabled:opacity-60">
           Find Account
         </button>
       </form>
@@ -571,7 +544,7 @@ function ProfilePage({ currentUser, onUserUpdate }) {
 
   const handleCropSave = async (croppedImage) => {
     try {
-      const updatedUser = await updateAvatar(currentUser.uid, croppedImage)
+      const updatedUser = await updateAvatar(currentUser, croppedImage)
       onUserUpdate(updatedUser)
     } catch (err) {
       showToast(authErrorMessage(err))
@@ -584,7 +557,7 @@ function ProfilePage({ currentUser, onUserUpdate }) {
 
   const handleRemoveAvatar = async () => {
     try {
-      const updatedUser = await updateAvatar(currentUser.uid, null)
+      const updatedUser = await updateAvatar(currentUser, null)
       onUserUpdate(updatedUser)
     } catch (err) {
       showToast(authErrorMessage(err))
@@ -604,7 +577,7 @@ function ProfilePage({ currentUser, onUserUpdate }) {
 
     setProfileSubmitting(true)
     try {
-      const updatedUser = await updateUsernameEmail(currentUser.uid, { username: profile.username, email: profile.email })
+      const updatedUser = await updateUsernameEmail(currentUser, { username: profile.username, email: profile.email })
       onUserUpdate(updatedUser)
       setProfileErrors({})
       setProfileSuccess('Profile updated successfully!')
@@ -669,33 +642,33 @@ function ProfilePage({ currentUser, onUserUpdate }) {
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
       {/* Back button */}
       <button onClick={() => navigate('/')}
-        className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-amber-600 mb-8 transition">
+        className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-stone-600 border border-stone-200 rounded-full px-4 py-2 hover:bg-mint-50 hover:text-mint-900 hover:border-mint-200 mb-8 transition">
         <Icon.ArrowLeft /> Back to Expenses
       </button>
 
       <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8">
         {/* ── Sidebar ── */}
         <aside className="lg:sticky lg:top-8 h-fit">
-          <div className="bg-white border border-stone-200 rounded-2xl p-6 text-center">
+          <div className="bg-white border border-stone-200 rounded-2xl shadow-sm p-6 text-center">
             <div className="relative w-fit mx-auto mb-4">
               <AvatarDisplay avatar={avatar} username={currentUser.username} size="xl"
-                className="ring-4 ring-stone-100" />
+                className="ring-4 ring-mint-100" />
               <button
                 onClick={() => fileRef.current.click()}
                 title="Change photo"
-                className="absolute bottom-0 right-0 w-8 h-8 bg-stone-900 text-amber-400 rounded-full flex items-center justify-center shadow-sm hover:bg-amber-600 hover:text-white transition"
+                className="absolute bottom-0 right-0 w-8 h-8 bg-coral-600 text-white rounded-full flex items-center justify-center shadow-sm hover:bg-coral-700 transition"
               >
                 <Icon.Camera />
               </button>
               <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
             </div>
             <h2 className="font-serif text-xl text-stone-900">{currentUser.username}</h2>
-            <p className="text-stone-400 text-sm">{currentUser.email}</p>
-            {memberSince && <p className="text-[11px] font-bold uppercase tracking-widest text-stone-300 mt-3">Member since {memberSince}</p>}
+            <p className="text-stone-500 text-sm">{currentUser.email}</p>
+            {memberSince && <p className="text-[11px] font-bold uppercase tracking-widest text-stone-400 mt-3">Member since {memberSince}</p>}
 
             <div className="flex flex-col gap-2 mt-5">
               <button onClick={() => fileRef.current.click()}
-                className="w-full px-4 py-2.5 bg-stone-900 text-white text-sm font-semibold rounded-full hover:bg-amber-600 transition shadow-sm">
+                className="w-full px-4 py-2.5 border border-stone-300 text-stone-700 text-sm font-semibold rounded-full hover:bg-stone-50 transition">
                 {avatar ? 'Change Photo' : 'Upload Photo'}
               </button>
               {avatar && (
@@ -711,12 +684,12 @@ function ProfilePage({ currentUser, onUserUpdate }) {
         {/* ── Main column ── */}
         <div className="space-y-8">
           {/* Edit Profile */}
-          <section className="bg-white border border-stone-200 rounded-2xl p-6 sm:p-8">
+          <section className="bg-white border border-stone-200 rounded-2xl shadow-sm p-6 sm:p-8">
             <div className="flex items-baseline gap-3 mb-6 pb-5 border-b border-stone-100">
-              <span className="font-serif text-amber-600 text-sm">01</span>
+              <span className="font-serif text-coral-600 text-sm">01</span>
               <div>
                 <h3 className="font-serif text-lg text-stone-900">Edit Profile</h3>
-                <p className="text-xs text-stone-400 mt-0.5">Update your username and email</p>
+                <p className="text-xs text-stone-500 mt-0.5">Update your username and email</p>
               </div>
             </div>
 
@@ -729,7 +702,7 @@ function ProfilePage({ currentUser, onUserUpdate }) {
                 placeholder="your@email.com" icon={Icon.Mail} error={profileErrors.email} />
               <div className="flex justify-end">
                 <button type="submit" disabled={profileSubmitting}
-                  className="px-6 py-2.5 bg-stone-900 text-white rounded-full font-semibold hover:bg-amber-600 transition shadow-sm text-sm tracking-wide disabled:opacity-60">
+                  className="px-6 py-2.5 bg-coral-600 text-white rounded-full font-semibold hover:bg-coral-700 active:bg-coral-800 transition shadow-sm text-sm tracking-wide disabled:opacity-60">
                   {profileSubmitting ? 'Saving…' : 'Save Changes'}
                 </button>
               </div>
@@ -737,12 +710,12 @@ function ProfilePage({ currentUser, onUserUpdate }) {
           </section>
 
           {/* Change Password */}
-          <section className="bg-white border border-stone-200 rounded-2xl p-6 sm:p-8">
+          <section className="bg-white border border-stone-200 rounded-2xl shadow-sm p-6 sm:p-8">
             <div className="flex items-baseline gap-3 mb-6 pb-5 border-b border-stone-100">
-              <span className="font-serif text-amber-600 text-sm">02</span>
+              <span className="font-serif text-coral-600 text-sm">02</span>
               <div>
                 <h3 className="font-serif text-lg text-stone-900">Change Password</h3>
-                <p className="text-xs text-stone-400 mt-0.5">Keep your account secure</p>
+                <p className="text-xs text-stone-500 mt-0.5">Keep your account secure</p>
               </div>
             </div>
 
@@ -778,7 +751,7 @@ function ProfilePage({ currentUser, onUserUpdate }) {
               />
               <div className="flex justify-end">
                 <button type="submit" disabled={pwSubmitting}
-                  className="px-6 py-2.5 bg-stone-900 text-white rounded-full font-semibold hover:bg-amber-600 transition shadow-sm text-sm tracking-wide disabled:opacity-60">
+                  className="px-6 py-2.5 bg-navy-800 text-white rounded-full font-semibold hover:bg-navy-900 transition shadow-sm text-sm tracking-wide disabled:opacity-60">
                   {pwSubmitting ? 'Updating…' : 'Update Password'}
                 </button>
               </div>
@@ -856,10 +829,10 @@ function AvatarCropperModal({ imageSrc, onCancel, onSave }) {
         </div>
 
         <div className="flex items-center gap-3 mt-4">
-          <span className="text-[11px] font-bold uppercase tracking-widest text-stone-400 shrink-0">Zoom</span>
+          <span className="text-[11px] font-bold uppercase tracking-widest text-stone-500 shrink-0">Zoom</span>
           <input type="range" min={1} max={3} step={0.01} value={zoom}
             onChange={e => setZoom(Number(e.target.value))}
-            className="flex-1 accent-amber-600"
+            className="flex-1 accent-coral-600"
           />
         </div>
 
@@ -869,7 +842,7 @@ function AvatarCropperModal({ imageSrc, onCancel, onSave }) {
               ? <img src={previewUrl} alt="Profile preview" className="w-full h-full object-cover" />
               : <span className="w-5 h-5 border-2 border-stone-300 border-t-transparent rounded-full animate-spin" />}
           </div>
-          <p className="text-xs text-stone-400">Live preview of your new profile picture</p>
+          <p className="text-xs text-stone-500">Live preview of your new profile picture</p>
         </div>
 
         {sizeError && <div className="mt-4"><Alert type="error">{sizeError}</Alert></div>}
@@ -880,7 +853,7 @@ function AvatarCropperModal({ imageSrc, onCancel, onSave }) {
             Cancel
           </button>
           <button type="button" onClick={handleSave} disabled={saving || !croppedAreaPixels}
-            className="flex-1 py-2.5 bg-stone-900 text-white rounded-full text-sm font-semibold hover:bg-amber-600 transition shadow-sm disabled:opacity-60">
+            className="flex-1 py-2.5 bg-coral-600 text-white rounded-full text-sm font-semibold hover:bg-coral-700 active:bg-coral-800 transition shadow-sm disabled:opacity-60">
             {saving ? 'Saving…' : 'Save'}
           </button>
         </div>
@@ -925,21 +898,21 @@ function ExpenseModal({ editingExpense, onClose, onSave }) {
               <label className="block text-[11px] font-bold text-stone-500 uppercase tracking-widest mb-1.5">{label}</label>
               <input type={type} value={form[key]} placeholder={placeholder} {...(extra || {})}
                 onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))}
-                className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 text-sm"
+                className="w-full px-4 py-2.5 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-coral-500/30 focus:border-coral-500 text-sm"
               />
             </div>
           ))}
           <div>
             <label className="block text-[11px] font-bold text-stone-500 uppercase tracking-widest mb-1.5">Category</label>
             <select value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value }))}
-              className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 text-sm bg-white">
+              className="w-full px-4 py-2.5 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-coral-500/30 focus:border-coral-500 text-sm bg-white">
               {CATEGORIES.filter(c => c !== 'All').map(c => <option key={c}>{c}</option>)}
             </select>
           </div>
           <div>
             <label className="block text-[11px] font-bold text-stone-500 uppercase tracking-widest mb-1.5">Date</label>
             <input type="date" value={form.date} onChange={e => setForm(p => ({ ...p, date: e.target.value }))}
-              className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 text-sm"
+              className="w-full px-4 py-2.5 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-coral-500/30 focus:border-coral-500 text-sm"
             />
           </div>
           {error && <Alert type="error">{error}</Alert>}
@@ -949,7 +922,7 @@ function ExpenseModal({ editingExpense, onClose, onSave }) {
               Cancel
             </button>
             <button type="submit"
-              className="flex-1 py-2.5 bg-stone-900 text-white rounded-full text-sm font-semibold hover:bg-amber-600 transition shadow-sm">
+              className="flex-1 py-2.5 bg-sage-600 text-white rounded-full text-sm font-semibold hover:bg-sage-700 transition shadow-sm">
               {editingExpense ? 'Update' : 'Add Expense'}
             </button>
           </div>
@@ -961,12 +934,12 @@ function ExpenseModal({ editingExpense, onClose, onSave }) {
 
 // ── Summary Card ──────────────────────────────────────────────────────────────
 
-function SummaryCard({ label, value, accent, sub }) {
+function SummaryCard({ label, value, accent, sub, valueClass = 'text-coral-600' }) {
   return (
-    <div className={`bg-white rounded-2xl border border-stone-200 border-t-4 p-5 ${accent}`}>
-      <p className="text-[11px] font-bold text-stone-400 uppercase tracking-widest mb-2">{label}</p>
-      <p className="font-serif text-3xl text-stone-900">{value}</p>
-      {sub && <p className="text-xs text-stone-400 mt-1">{sub}</p>}
+    <div className={`bg-white rounded-2xl border border-stone-200 shadow-sm border-t-4 p-5 ${accent}`}>
+      <p className="text-[11px] font-bold text-stone-500 uppercase tracking-widest mb-2">{label}</p>
+      <p className={`font-serif text-3xl ${valueClass}`}>{value}</p>
+      {sub && <p className="text-xs text-stone-500 mt-1">{sub}</p>}
     </div>
   )
 }
@@ -998,13 +971,9 @@ function ToastProvider({ children }) {
       <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] flex flex-col items-center gap-2 w-full px-4 sm:w-auto pointer-events-none">
         {toasts.map(t => (
           <div key={t.id}
-            className="pointer-events-auto flex items-center gap-3 bg-stone-900 border border-stone-800 shadow-lg rounded-full pl-4 pr-3 py-3 text-sm font-semibold text-white w-full sm:min-w-[320px] animate-[toast-slide-in_0.25s_ease-out]">
-            <span className="text-emerald-400 shrink-0"><Icon.CheckCircle /></span>
+            className="pointer-events-auto flex items-center gap-3 bg-navy-800 border border-navy-900 shadow-lg rounded-full pl-4 pr-3 py-3 text-sm font-semibold text-white w-full sm:min-w-[320px] animate-[toast-slide-in_0.25s_ease-out]">
+            <span className="text-teal-200 shrink-0"><Icon.CheckCircle /></span>
             <span className="flex-1">{t.message}</span>
-            <button onClick={() => dismissToast(t.id)} aria-label="Dismiss"
-              className="text-stone-400 hover:text-white shrink-0 p-1 -m-1 rounded-full transition">
-              <Icon.Close />
-            </button>
           </div>
         ))}
       </div>
@@ -1016,17 +985,15 @@ function ToastProvider({ children }) {
 
 function Navbar({ currentUser, onLogout }) {
   const isProfile = useLocation().pathname === '/profile'
-  const profileLinkCls = `hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold transition ${isProfile ? 'bg-amber-500 text-stone-900' : 'text-stone-300 hover:bg-stone-800'}`
-  const mobileLinkCls = `sm:hidden w-9 h-9 rounded-full flex items-center justify-center transition overflow-hidden ${isProfile ? 'ring-2 ring-amber-400' : ''}`
+  const profileLinkCls = `hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold transition ${isProfile ? 'bg-coral-600 text-white' : 'text-stone-700 hover:bg-mint-300/60'}`
+  const mobileLinkCls = `sm:hidden w-9 h-9 rounded-full flex items-center justify-center transition overflow-hidden ${isProfile ? 'ring-2 ring-coral-500' : ''}`
 
   return (
-    <nav className="bg-stone-900 sticky top-0 z-10">
+    <nav className="bg-mint-200 sticky top-0 z-10 border-b border-mint-300">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-3">
-          <div className="w-9 h-9 border border-amber-400/50 rounded-full flex items-center justify-center text-amber-400">
-            <Icon.Money />
-          </div>
-          <span className="font-serif text-lg text-stone-50 tracking-wide hidden sm:block">ExpenseTracker</span>
+        <Link to="/" className="flex items-center gap-2.5">
+          <BrandLogo />
+          <span className="font-serif text-lg text-stone-900 tracking-wide leading-none hidden sm:block">ExpenseTracker</span>
         </Link>
         <div className="flex items-center gap-2">
           {/* Profile link */}
@@ -1034,7 +1001,7 @@ function Navbar({ currentUser, onLogout }) {
             <AvatarDisplay avatar={currentUser.profileImage} username={currentUser.username} size="sm" />
             <div className="leading-tight text-left">
               <p className="text-sm font-semibold">{currentUser.username}</p>
-              <p className={`text-xs hidden md:block ${isProfile ? 'text-stone-800' : 'text-stone-400'}`}>{currentUser.email}</p>
+              <p className={`text-xs hidden md:block ${isProfile ? 'text-coral-100' : 'text-stone-600'}`}>{currentUser.email}</p>
             </div>
           </Link>
           {/* Mobile profile link */}
@@ -1042,7 +1009,7 @@ function Navbar({ currentUser, onLogout }) {
             <AvatarDisplay avatar={currentUser.profileImage} username={currentUser.username} size="md" />
           </Link>
           <button onClick={onLogout}
-            className="flex items-center gap-2 border border-stone-700 text-stone-300 px-3 py-1.5 rounded-full text-sm font-semibold hover:bg-stone-800 hover:text-white transition">
+            className="flex items-center gap-2 border border-stone-900/15 text-stone-700 px-3 py-1.5 rounded-full text-sm font-semibold hover:bg-stone-900 hover:text-white transition">
             <Icon.Logout />
             <span className="hidden sm:inline">Logout</span>
           </button>
@@ -1123,31 +1090,31 @@ function ExpensesPage({ expenses, onAdd, onUpdate, onDelete }) {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10 pb-6 border-b border-stone-200">
         <div>
-          <p className="text-xs font-bold tracking-[0.2em] text-amber-600 uppercase mb-2">Dashboard</p>
+          <p className="text-xs font-bold tracking-[0.2em] text-coral-600 uppercase mb-2">Dashboard</p>
           <h2 className="font-serif text-3xl text-stone-900">My Expenses</h2>
           <p className="text-stone-500 text-sm mt-1">Track and manage all your spending in one place</p>
         </div>
         <button onClick={openAddModal}
-          className="inline-flex items-center justify-center gap-2 bg-stone-900 text-white px-5 py-3 rounded-full font-semibold hover:bg-amber-600 transition shadow-sm text-sm tracking-wide">
+          className="inline-flex items-center justify-center gap-2 bg-sage-600 text-white px-5 py-3 rounded-full font-semibold hover:bg-sage-700 transition shadow-sm text-sm tracking-wide">
           <Icon.Plus /> Add Expense
         </button>
       </div>
 
       {/* Summary cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        <SummaryCard label="Total Expenses" value={filtered.length} accent="border-amber-500"
+        <SummaryCard label="Total Expenses" value={filtered.length} accent="border-coral-500"
           sub={hasFilters ? `of ${expenses.length} total` : undefined} />
-        <SummaryCard label="Total Amount" value={`$${totalAmount.toFixed(2)}`} accent="border-emerald-500" />
-        <SummaryCard label="Top Category" value={topCategory ? topCategory.category : 'No Data'} accent="border-stone-900" />
+        <SummaryCard label="Total Amount" value={`$${totalAmount.toFixed(2)}`} accent="border-coral-500" />
+        <SummaryCard label="Top Category" value={topCategory ? topCategory.category : 'No Data'} accent="border-navy-800" valueClass="text-stone-900" />
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-2xl border border-stone-200 p-5 mb-6">
+      <div className="bg-white rounded-2xl border border-stone-200 shadow-sm p-5 mb-6">
         <div className="flex items-center justify-between flex-wrap gap-2 mb-4">
-          <h3 className="text-[11px] font-bold text-stone-400 uppercase tracking-widest">Filter Expenses</h3>
+          <h3 className="text-[11px] font-bold text-stone-500 uppercase tracking-widest">Filter Expenses</h3>
           {hasFilters && (
             <button onClick={clearFilters}
-              className="text-xs font-semibold text-stone-500 hover:text-amber-600 transition">
+              className="text-xs font-semibold text-stone-500 hover:text-coral-600 transition">
               Clear Filters
             </button>
           )}
@@ -1158,7 +1125,7 @@ function ExpensesPage({ expenses, onAdd, onUpdate, onDelete }) {
           {FILTER_MODES.map(({ key, label }) => (
             <button key={key} onClick={() => setFilterMode(key)}
               className={`px-4 py-1.5 rounded-full text-sm font-semibold transition ${
-                filterMode === key ? 'bg-stone-900 text-white shadow-sm' : 'text-stone-500 hover:text-stone-700'
+                filterMode === key ? 'bg-sage-600 text-white shadow-sm' : 'text-stone-500 hover:text-stone-700'
               }`}>
               {label}
             </button>
@@ -1177,22 +1144,22 @@ function ExpensesPage({ expenses, onAdd, onUpdate, onDelete }) {
               <div className="flex-1">
                 <label className="block text-[11px] font-bold text-stone-500 uppercase tracking-widest mb-1.5">From Date</label>
                 <input type="date" value={fromDate} max={toDate || undefined} onChange={e => setFromDate(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 text-sm"
+                  className="w-full px-4 py-2.5 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-coral-500/30 focus:border-coral-500 text-sm"
                 />
               </div>
               <div className="flex-1">
                 <label className="block text-[11px] font-bold text-stone-500 uppercase tracking-widest mb-1.5">To Date</label>
                 <input type="date" value={toDate} min={fromDate || undefined} onChange={e => setToDate(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 text-sm"
+                  className="w-full px-4 py-2.5 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-coral-500/30 focus:border-coral-500 text-sm"
                 />
               </div>
             </div>
             {(fromDate || toDate) && (
               <div className="flex flex-wrap gap-2 mt-3">
                 {fromDate && (
-                  <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 text-xs font-semibold px-3 py-1 rounded-full border border-amber-200">
+                  <span className="inline-flex items-center gap-1 bg-coral-50 text-coral-700 text-xs font-semibold px-3 py-1 rounded-full border border-coral-100">
                     From: {fromDate}
-                    <button onClick={() => setFromDate('')} className="ml-1 hover:text-amber-900">×</button>
+                    <button onClick={() => setFromDate('')} className="ml-1 hover:text-coral-900">×</button>
                   </span>
                 )}
                 {toDate && (
@@ -1208,16 +1175,16 @@ function ExpensesPage({ expenses, onAdd, onUpdate, onDelete }) {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden">
+      <div className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden">
         {filtered.length === 0 ? (
           <div className="text-center py-20">
             <div className="flex justify-center mb-4"><Icon.Empty /></div>
             <p className="text-stone-600 font-semibold text-lg font-serif">No expenses found</p>
-            <p className="text-stone-400 text-sm mt-1">
+            <p className="text-stone-500 text-sm mt-1">
               {hasFilters ? 'Try adjusting or clearing your date range.' : 'Click "Add Expense" to get started.'}
             </p>
             {hasFilters && (
-              <button onClick={clearFilters} className="mt-4 text-amber-600 text-sm font-semibold hover:underline">
+              <button onClick={clearFilters} className="mt-4 text-coral-600 text-sm font-semibold hover:underline">
                 Clear Filters
               </button>
             )}
@@ -1230,35 +1197,35 @@ function ExpensesPage({ expenses, onAdd, onUpdate, onDelete }) {
                 <thead className="bg-stone-50 border-b border-stone-200">
                   <tr>
                     {['#', 'Expense Name', 'Category', 'Date', 'Amount', 'Actions'].map(h => (
-                      <th key={h} className={`px-6 py-3.5 text-[11px] font-bold text-stone-400 uppercase tracking-widest ${h === 'Amount' || h === 'Actions' ? 'text-right' : 'text-left'}`}>{h}</th>
+                      <th key={h} className={`px-6 py-3.5 text-[11px] font-bold text-stone-500 uppercase tracking-widest ${h === 'Amount' || h === 'Actions' ? 'text-right' : 'text-left'}`}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-100">
                   {filtered.map((exp, idx) => (
-                    <tr key={exp.id} className="hover:bg-amber-50/40 transition-colors">
+                    <tr key={exp.id} className="hover:bg-mint-50 transition-colors">
                       <td className="px-6 py-4 text-sm text-stone-400 font-mono">{idx + 1}</td>
                       <td className="px-6 py-4 font-semibold text-stone-800">{exp.title}</td>
                       <td className="px-6 py-4">
-                        <span className={`inline-block px-3 py-1 rounded-full border text-xs font-bold ${CATEGORY_COLORS[exp.category] || 'bg-stone-100 text-stone-600 border-stone-200'}`}>{exp.category}</span>
+                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${CATEGORY_COLORS[exp.category] || 'bg-cat-other text-white'}`}>{exp.category}</span>
                       </td>
                       <td className="px-6 py-4 text-sm text-stone-500 font-mono">{exp.date}</td>
-                      <td className="px-6 py-4 text-right font-mono font-semibold text-stone-800">${exp.amount.toFixed(2)}</td>
+                      <td className="px-6 py-4 text-right font-mono font-semibold text-stone-900">${exp.amount.toFixed(2)}</td>
                       <td className="px-6 py-4">
                         <div className="flex items-center justify-end gap-1">
-                          <button onClick={() => openEditModal(exp)} className="p-2 text-stone-500 hover:bg-amber-100 hover:text-amber-700 rounded-full transition" title="Edit"><Icon.Edit /></button>
-                          <button onClick={() => onDelete(exp.id)} className="p-2 text-stone-500 hover:bg-rose-100 hover:text-rose-600 rounded-full transition" title="Delete"><Icon.Delete /></button>
+                          <button onClick={() => openEditModal(exp)} className="p-2 text-stone-500 hover:bg-mint-100 hover:text-mint-900 rounded-full transition" title="Edit"><Icon.Edit /></button>
+                          <button onClick={() => onDelete(exp.id)} className="p-2 text-stone-500 hover:bg-danger-50 hover:text-danger-600 rounded-full transition" title="Delete"><Icon.Delete /></button>
                         </div>
                       </td>
                     </tr>
                   ))}
                 </tbody>
-                <tfoot className="bg-stone-50 border-t border-stone-200">
-                  <tr>
-                    <td colSpan={4} className="px-6 py-4 text-sm font-bold text-stone-600">
+                <tfoot>
+                  <tr className="bg-gold-500">
+                    <td colSpan={4} className="px-6 py-4 text-sm font-bold text-navy-900">
                       Total ({filtered.length} {filtered.length === 1 ? 'item' : 'items'})
                     </td>
-                    <td className="px-6 py-4 text-right font-mono font-bold text-amber-600 text-lg">${totalAmount.toFixed(2)}</td>
+                    <td className="px-6 py-4 text-right font-mono font-bold text-navy-900 text-lg">${totalAmount.toFixed(2)}</td>
                     <td />
                   </tr>
                 </tfoot>
@@ -1273,23 +1240,23 @@ function ExpensesPage({ expenses, onAdd, onUpdate, onDelete }) {
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-stone-800 truncate">{exp.title}</p>
                       <div className="flex items-center gap-2 mt-1.5">
-                        <span className={`px-2.5 py-0.5 rounded-full border text-xs font-bold ${CATEGORY_COLORS[exp.category] || 'bg-stone-100 text-stone-600 border-stone-200'}`}>{exp.category}</span>
-                        <span className="text-xs text-stone-400 font-mono">{exp.date}</span>
+                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${CATEGORY_COLORS[exp.category] || 'bg-cat-other text-white'}`}>{exp.category}</span>
+                        <span className="text-xs text-stone-500 font-mono">{exp.date}</span>
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-2 shrink-0">
-                      <span className="font-mono font-semibold text-stone-800">${exp.amount.toFixed(2)}</span>
+                      <span className="font-mono font-semibold text-stone-900">${exp.amount.toFixed(2)}</span>
                       <div className="flex gap-1">
-                        <button onClick={() => openEditModal(exp)} className="p-1.5 text-stone-500 hover:bg-amber-100 hover:text-amber-700 rounded-full transition"><Icon.Edit /></button>
-                        <button onClick={() => onDelete(exp.id)} className="p-1.5 text-stone-500 hover:bg-rose-100 hover:text-rose-600 rounded-full transition"><Icon.Delete /></button>
+                        <button onClick={() => openEditModal(exp)} className="p-1.5 text-stone-500 hover:bg-mint-100 hover:text-mint-900 rounded-full transition"><Icon.Edit /></button>
+                        <button onClick={() => onDelete(exp.id)} className="p-1.5 text-stone-500 hover:bg-danger-50 hover:text-danger-600 rounded-full transition"><Icon.Delete /></button>
                       </div>
                     </div>
                   </div>
                 </div>
               ))}
-              <div className="px-4 py-3.5 bg-stone-50 flex justify-between items-center">
-                <span className="text-sm font-bold text-stone-600">Total ({filtered.length} {filtered.length === 1 ? 'item' : 'items'})</span>
-                <span className="font-mono font-bold text-amber-600">${totalAmount.toFixed(2)}</span>
+              <div className="px-4 py-3.5 bg-gold-500 flex justify-between items-center">
+                <span className="text-sm font-bold text-navy-900">Total ({filtered.length} {filtered.length === 1 ? 'item' : 'items'})</span>
+                <span className="font-mono font-bold text-navy-900">${totalAmount.toFixed(2)}</span>
               </div>
             </div>
           </>

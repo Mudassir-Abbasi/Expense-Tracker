@@ -187,17 +187,14 @@ export function onAuthChange(callback) {
   })
 }
 
-export async function updateUsernameEmail(uid, { username, email }) {
+// `currentProfile` is the caller's already-loaded profile (React state), not
+// re-fetched here — the caller always has a fresh copy by construction, and
+// skipping the read shaves a full round-trip off the time-to-success-toast.
+export async function updateUsernameEmail(currentProfile, { username, email }) {
+  const uid = currentProfile.uid
   const trimmedUsername = username.trim()
   const usernameLower = trimmedUsername.toLowerCase()
   const normalizedEmail = email.trim().toLowerCase()
-
-  const currentProfile = await getUserProfile(uid)
-  if (!currentProfile) {
-    const err = new Error('Your account profile could not be found. Please contact support or sign up again.')
-    err.code = 'app/profile-missing'
-    throw err
-  }
 
   const oldUsernameLower = currentProfile.username.trim().toLowerCase()
   const usernameChanged = oldUsernameLower !== usernameLower
@@ -255,7 +252,7 @@ export async function updateUsernameEmail(uid, { username, email }) {
     }
   }
 
-  return getUserProfile(uid)
+  return { ...currentProfile, username: trimmedUsername, email: normalizedEmail }
 }
 
 export async function updateUserPassword(currentPassword, newPassword) {
@@ -270,7 +267,7 @@ export async function updateUserPassword(currentPassword, newPassword) {
   await updatePassword(user, newPassword)
 }
 
-export async function updateAvatar(uid, dataUrl) {
-  await updateDoc(userDocRef(uid), { profileImage: dataUrl })
-  return getUserProfile(uid)
+export async function updateAvatar(currentProfile, dataUrl) {
+  await updateDoc(userDocRef(currentProfile.uid), { profileImage: dataUrl })
+  return { ...currentProfile, profileImage: dataUrl }
 }
